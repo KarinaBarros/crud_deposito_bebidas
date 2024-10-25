@@ -1,0 +1,320 @@
+body{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+.navigation{
+    width: 30%;
+}
+
+main{
+    width: 70%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.formulario{
+    display: flex;
+    flex-direction: column;
+}
+
+.botoes{
+    display: flex;
+    flex-direction: row;
+    margin: auto;
+}
+
+.overflow-pagto{
+    height: 250px;
+    overflow: auto;
+}
+
+.overflow{
+    height: 380px;
+    overflow: auto;
+}
+table {
+    width: 100%;
+    height: 300px;
+}
+
+#tabela-vendas{
+    height: 250px;
+    overflow: auto;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: left;
+    width: auto;
+    font-family: var(--font2);
+    font-size: 16px;
+}
+
+.nav-home{
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px ;
+    background-color: var(--background-login);
+    height: 100vh;
+}
+
+i{
+    margin-right: 20px;
+}
+
+#c-bebidas, #v-bebidas, #pagto, #pagto-p , #pagto-e, #busca-c, #todas-v, #estoque-b{
+    padding: 20px;
+    font-family: var(--font);
+    font-size: 20px;
+    text-align: left;
+    background-color: var(--background-login);
+    color: var(--color-text);
+    border: none;
+    border-bottom: 2px solid var(--color-text);
+}
+
+#c-bebidas:hover, #v-bebidas:hover, #pagto:hover, #pagto-p:hover, #pagto-e:hover, #busca-c:hover, #todas-v:hover, #estoque-b:hover{
+    color: var(--color-highlight);
+    border-bottom: 2px solid var(--color-highlight);
+    cursor: pointer;
+}
+
+#container-cadastro, #container-vendas, #container-estoque, #container-pagamento, #container-pendente, #container-efetuado, #container-busca, #container-tvendas{
+    display: none;
+    position: absolute;
+    top: 0;
+    background-color: white;
+    width: 60%;
+    height: 80%;
+    margin: 3% 5%;
+    padding: 20px;
+
+}
+
+.name-logout{
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 5px 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    margin: 5px;
+}
+
+#nome-login{
+    font-family: var(--font);
+    font-size: 20px;
+    font-weight: 600;
+    margin-right: 20px;
+}
+
+.container-right{
+    height: 100vh;
+}
+
+
+
+.img-principal{
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.texto-principal{
+    position: absolute;
+    margin: 140px 50px 0;
+    top: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px 20px;
+    box-shadow: 2px 2px 4px var(--color-text);
+   
+}
+
+.titulo{
+    color: var(--color-highlight);
+    font-family: var(--font);
+    font-size: 40px;
+    font-weight: 800;
+    width: 400px;
+    text-align: center;
+    text-shadow: 2px 2px 4px var(--background-login);
+    position: absolute;
+    top: 0;
+    margin: 50px 75px;
+}
+
+.logo2{
+    width: 80px;
+    margin: -40px auto 20px;
+}
+
+.paragrafo{
+    color: var(--background-login);
+    font-family: var(--font2);
+    font-size: 20px;
+    font-weight: 600;
+    width: 400px;
+    text-indent: 30px;
+    text-align: justify;
+    line-height: 1.5;
+    
+}
+
+.botao{
+    background-color: var(--background-login);
+    color: var(--color-text);
+    margin-right: 20px;
+    padding: 5px 20px;
+    font-family: var(--font);
+    font-size: 20px;
+    border-radius: 20px;
+}
+
+.botao:hover{
+    border: 2px solid var(--color-highlight);
+    cursor: pointer;
+}
+
+.fechar{
+    margin-left: 97%;
+    background-color: var(--background-login);
+    color: var(--color-text);
+}
+
+h2{
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: var(--font);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-highlight);
+}
+
+label{
+    font-family: var(--font);
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+input, select{
+    font-family: var(--font2);
+    font-size: 16px;
+    padding: 5px;
+    margin-bottom: 10px;
+    margin-right: 0;
+    flex: 1;
+}
+
+.busca{
+    display: flex;
+    width: 50%;
+}
+
+.buscar{
+    height: 30px;
+    background-color: var(--color-text);
+    font-size: 20px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border: 1px solid black;
+}
+
+#busca-clientes, #pesquisa-cliente, #pesquisa-estoque{
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border-right: none;
+    border: 1px solid black;
+    padding-left: 20px;
+}
+
+#busca-clientes:focus, #pesquisa-cliente:focus {
+    outline: none; 
+    border: 1px solid black;
+}
+
+#total-pagto{
+    width: 30%;
+    margin-left: 68%;
+}
+
+.label-total{
+    width: 30%;
+    margin-left: 68%;
+    margin-top: 20px;
+}
+
+#hamburger-menu, #close-menu{
+    display: none;
+    position: absolute;
+    top: 0;
+    margin: 10px;
+    font-size: 20px;
+    background-color: rgb(0, 0, 0, 0);
+    border: none;
+    color: var(--color-text);
+}
+
+@media screen and (max-width: 1024px) {
+    body{
+        flex-direction: column;
+    }
+
+    #close-menu{
+        display: none;
+    }
+
+    #hamburger-menu {
+        display: block;
+    }
+    .navigation{
+        position: absolute;
+        width: 100%;
+        z-index: 5;
+    }
+    .nav-home {
+        display: none;
+        padding-top: 30px;
+        padding-bottom: 0;
+    }
+    main{
+        width: 100%;
+    }
+    .name-logout{
+        margin: 10px;
+    }
+    .texto-principal{
+        margin-left: 20px;
+    }
+    .titulo{
+        margin-left: 40px;
+    }
+    #c-bebidas, #v-bebidas, #pagto, #pagto-p , #pagto-e, #busca-c, #todas-v, #estoque-b{
+        width: 100%;
+        font-size: 16px;
+    }
+    #container-cadastro, #container-vendas, #container-estoque, #container-pagamento, #container-pendente, #container-efetuado, #container-busca, #container-tvendas{
+        width: 80%;
+        margin: 50px 5%;
+    }
+
+    th, td{
+        font-size: 14px;
+    }
+    .botao{
+        font-size: 14px;
+        margin-right: 5px;
+        padding: 5px 10px;
+    }
+
+}

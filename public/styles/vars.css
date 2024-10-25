@@ -1,0 +1,8 @@
+:root{
+    --font: 'segoe ui';
+    --font2: 'Arial', sans-serif;
+
+    --background-login: #010101;
+    --color-text: white;
+    --color-highlight: red;
+}

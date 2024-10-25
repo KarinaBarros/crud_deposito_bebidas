@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./styles/reset.css">
+    <link rel="stylesheet" href="./styles/vars.css">
+    <link rel="stylesheet" href="./styles/login.css">
+    <title>Z Box Cross Club</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <img class="logo" id="logo" src="./imagens/logo.png" alt="zbox">
+        <div id="container-button">
+            <div class="login">
+                <button id="button-login" onclick="Login()">Login</button>
+                <button id="button-registration" onclick="Registration()">Cadastre-se</button>
+            </div>
+        </div>
+        <div id="container-login">
+            <div class="container-form">
+
+                <form class="form-login" onsubmit="return handleSubmitLogin(event)">
+
+                    <label class="label-form" for="email-login">E-mail:</label>
+                    <input class="input-form" type="email" id="email-login" name="email-login" required>
+
+                    <label class="label-form" for="password-login">Senha:</label>
+                    <input class="input-form" type="password" id="password-login" name="password-login" required>
+                    <div class="checkbox-login">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label class="label-checkbox" for="remember">Lembrar dados de acesso</label>
+                        <button class="forgot" type="button" onclick="chagePassword()">Esqueci minha Senha.</button>
+                    </div>
+                    <button id="submit-login" type="submit">Login</button>
+
+                </form>
+            </div>
+        </div>
+
+        <div id="container-registration">
+            <div class="container-form">
+                <form id="registration-form" class="form-registration" onsubmit="return handleSubmitRegistration(event)">
+                    <label class="label-form" for="name">Nome:</label>
+                    <input class="input-form" type="text" id="name" name="name" required>
+
+                    <label class="label-form" for="email-registration">Email:</label>
+                    <input class="input-form" type="email" id="email-registration" name="email-registration" required>
+
+                    <label class="label-form" for="password-registration">Senha:</label>
+                    <input class="input-form" type="password" id="password-registration" name="password-registration" required>
+
+                    <br>
+                    <p id="minimo">Mínimo de 8 caracteres.</p>
+                    <p id="maiuscula">Pelo menos 1 letra maiuscula.</p>
+                    <p id="minuscula">Pelo menos 1 letra minuscula.</p>
+                    <p id="numero">Pelo menos 1 número.</p>
+                    <p id="especial">Pelo menos 1 caractere especial.</p>
+                    <br>
+
+                    <label class="label-form" for="confirm-password">Confirmar Senha:</label>
+                    <input class="input-form" type="password" id="confirm-password" name="confirm-password" required>
+
+                    <button id="submit-registration" type="submit">Cadastrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="container2">
+        <img src="./imagens/alcohol-1961542_1280.jpg" alt="bebidas" class="img-principal">
+        <h1 class="titulo">Z Box Cross Club</h1>
+        <div class="texto-principal">
+            <img src="./imagens/logo.png" alt="zbox" class="logo2">
+            <p class="paragrafo">Controle as vendas e o estoque do seu estabelecimento de maneira simples e eficaz.</p>
+            <p class="paragrafo">Cadastre bebidas.</p>
+            <p class="paragrafo">Insira as vendas.</p>
+            <p class="paragrafo">Confirme pagamentos.</p>
+            <p class="paragrafo">Verifique status de pagamento.</p>
+            <p class="paragrafo">Verifique seu estoque.</p>
+        </div>
+    </div>
+
+ <script src="./scripts/login.js"></script>
+</body>
+</html>

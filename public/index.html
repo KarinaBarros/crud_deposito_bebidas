@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./styles/reset.css">
+    <link rel="stylesheet" href="./styles/vars.css">
+    <link rel="stylesheet" href="./styles/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Zbox Cross</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="navigation">
+        <nav class="nav-home" id="navigation-home">
+            <button id="c-bebidas" onclick="cadastroBebidas()"><i class="fas fa-wine-bottle"></i>Cadastro de Bebidas</button>
+            <button id="v-bebidas" onclick="vendasBebidas()"><i class="fas fa-shopping-cart"></i>Vendas de Bebidas</button>
+            <button id="pagto" onclick="Pagamento()"><i class="far fa-credit-card"></i> Efetuar pagamento</button>
+            <button id="pagto-p" onclick="Pendente()"><i class="far fa-clock"></i>Pagamentos Pendentes</button>
+            <button id="pagto-e" onclick="Efetuado()"><i class="fas fa-check"></i>Pagamentos Efetuados</button>
+            <button id="busca-c" onclick="Busca()"><i class="fas fa-search"></i>
+                Busca de Clientes</button>
+            <button id="todas-v" onclick="TVendas()"><i class="fas fa-chart-line"></i>Todas as Vendas</button>
+            <button id="estoque-b" onclick="Estoque()"><i class="fas fa-warehouse"></i>Estoque</button>
+        </nav>
+        <button id="hamburger-menu" onclick="toggleNav()">&#9776;</button>
+        <button id="close-menu" onclick="closeNav()">x</button>
+    </div>
+    <main>
+        <div class="container-right">
+            <img src="./imagens/alcohol-1961542_1280.jpg" alt="bebidas" class="img-principal">
+            <div class="name-logout">
+                <!--colocar nesse p o nome do cadastro de quem esta logado-->
+                <p id="nome-login"></p>
+                <!--formulario para o cliente fazer logout-->
+                <button onclick="alertLogout()">x</button>
+            </div>
+        </div>
+
+        <div id="container-principal">
+            
+                <h1 class="titulo">Z Box Cross Club</h1>
+                <div class="texto-principal">
+                    <img src="./imagens/logo.png" alt="zbox" class="logo2">
+                    <p class="paragrafo">Controle as vendas e o estoque do seu estabelecimento de maneira simples e eficaz.</p>
+                    <p class="paragrafo">Cadastre bebidas.</p>
+                    <p class="paragrafo">Insira as vendas.</p>
+                    <p class="paragrafo">Confirme pagamentos.</p>
+                    <p class="paragrafo">Verifique status de pagamento.</p>
+                    <p class="paragrafo">Verifique seu estoque.</p>
+                </div>
+            
+        </div>
+        <div id="container-cadastro">
+            <button class="fechar" onclick="Close()">x</button>
+            <h2 class="titulo-form"><i class="fas fa-wine-bottle"></i> Cadastro de Bebidas</h2>
+            <Form method="post" action="" class="formulario" id="form-cadastrob" onsubmit="submitForm(event)">
+                <label for="nome-bebida" class="label-form">Nome do produto:</label>
+                <input type="text" id="nome-bebida" name="nome-bebida" class="input-form" required>
+
+                <label for="tipo-bebida" class="label-form">Tipo:</label>
+                <select name="tipo-bebida" id="tipo-bebida" class="input-form">
+                    <option value="alcoolica">Alcóolica</option>
+                    <option value="nao-alcoolica">Não Alcóolica</option>
+                </select>
+
+                <label for="unidade-caixa" class="label-form">Quantidade de caixas:</label>
+                <input type="number" min="0" id="unidade-caixa" name="unidade-caixa" class="input-form" required>
+
+                <label for="unidade" class="label-form">Unidades por caixa:</label>
+                <input type="number" min="0" id="unidade" name="unidade" class="input-form"  required>
+
+
+                <label for="gasto-caixa" class="label-form">Valor Gasto por caixa:</label>
+                <input type="text" id="gasto-caixa" name="gasto-caixa" class="input-form" oninput="formatarDinheiro(this)" required>
+
+                <label for="venda-unidade" class="label-form">Valor de venda por unidade:</label>
+                <input type="text" id="venda-unidade" name="venda-unidade" class="input-form" oninput="formatarDinheiro(this)" required>
+
+                <div class="botoes">
+                    <button type="submit" class="botao">Cadastrar</button>
+                    <button type="reset"  class="botao">Cancelar</button>
+                </div>
+            </Form>
+        </div>
+
+        <div id="container-vendas">
+            <button class="fechar" onclick="Close()">x</button>
+            <h2><i class="fas fa-shopping-cart"></i> Vendas de bebidas</h2>
+            <form action="" method="post" class="formulario">
+
+                <label for="venda-nome" class="label-form">Nome do cliente:</label> 
+                <input type="text" id="venda-nome" name="venda-nome" class="input-form" required>
+
+                <label for="venda-tipo" class="label-form">Tipo de bebida:</label>
+                <select name="venda-tipo" id="venda-tipo" class="input-form">
+                    <option value="alcoolica">Alcóolica</option>
+                    <option value="nao-alcoolica">Não Alcóolica</option>
+                </select>
+
+                <label for="venda-bebida" class="label-form">Nome da bebida:</label>
+                <select id="venda-bebida" name="venda-bebida" class="input-form">
+                    <!--iterar sobre as bebidas cadastradas para popular o select-->
+                    <option value=""></option>
+                </select>
+
+                <label for="venda-quantidade" class="label-form">Quantidade:</label> 
+                <input type="number" min="0" id="venda-quantidade" name="venda-quantidade" class="input-form" required>
+ 
+                <label for="venda-valor" class="label-form">Valor de venda por unidade:</label>
+                <input type="text" id="venda-valor" name="venda-valor" class="input-form" oninput="formatarDinheiro(this)" required>
+
+                <div class="botoes">
+                    <button type="submit" class="botao"  id="form-venda" onsubmit="submitVenda(event)">Confirmar Venda</button>
+                    <button type="reset"  class="botao">Cancelar</button>
+                    <button type="button" onclick="Pagamento()"  class="botao">Fazer pagamento</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="container-estoque">
+            <button class="fechar" onclick="Close()">x</button>
+            <h2><i class="fas fa-warehouse"></i> Estoque</h2>
+            <form action="" method="post" class="busca">
+                <input type="text" id="pesquisa-estoque" name="pesquisa-estoque" placeholder="Buscar bebidas...">
+                <button type="submit" class="buscar"><i class="fas fa-search"></i></button>
+            </form>
+            <div class="overflow">
+                <table id="tabela-estoque">
+                    <thead>
+                        <tr>
+                            <th>Tipo </th>
+                            <th>Bebida</th>
+                            <th>Estoque</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <!-- Iterar sobre o estoque para popular a table
+                            <td>Alcóolica</td>
+                            <td>Vinho</td>
+                            <td>30</td>-->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="container-pagamento">
+            <button class="fechar" onclick="Close()">x</button>
+            <h2><i class="far fa-credit-card"></i> Efetuar Pagamentos</h2>
+            <form action="" method="post" class="busca">
+                <input type="text" id="pesquisa-cliente" name="pesquisa-cliente" placeholder="Buscar cliente...">
+                <button type="submit" class="buscar"><i class="fas fa-search"></i></button>
+            </form>
+            <div class="overflow-pagto">
+                <table id="tabela-vendas">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Bebida</th>
+                            <th>Tipo</th>
+                            <th>Quantidade</th>
+                            <th>Valor unitário</th>
+                            <th>Valor total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <!--iterar para popular a table
+                    <tr> 
+                        <td>Cliente 1</td>
+                        <td>Vinho</td>
+                        <td>Alcóolica</td>
+                        <td>R$ 5,00</td>
+                        <td>R$ 5,00</td>
+                        <td>5,00</td>
+                    </tr>
+                    -->
+                    </tbody>
+                </table>
+            </div>
+            <form action="" method="post" class="formulario">
+                <label for="total-pagto" class="label-form, label-total">Total:</label>
+                <input type="text" id="total-pagto" class="input-form" oninput="formatarDinheiro(this)" readonly>
+                <div class="botoes">
+                    <button type="button" class="botao" id="pix">Pix</button>
+                    <button type="button"  class="botao" id="cartao-credito">Crédito</button>
+                    <button type="button"  class="botao" id="cartao-debito">Débito</button>
+                    <button type="button"  class="botao" id="cdinheiro">Dinheiro</button>
+                    <button type="reset" class="botao">Cancelar</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="container-pendente">
+            <button class="fechar" onclick="Close()">x</button>
+            <h2><i class="far fa-clock"></i> Pagamentos Pendentes</h2>
+            <div class="overflow">
+                <table id="tabela-pendentes">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Valor total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <!-- Iterar sobre os pendentes para popular a table-->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="container-efetuado">
+            <button class="fechar" onclick="Close()">x</button>
+            <h2><i class="fas fa-check"></i> Pagamentos Efetuados</h2>
+            <div class="overflow">
+                <table id="tabela-efetuados">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Valor total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <!-- Iterar sobre os efetuados para popular a table-->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="container-busca">
+            <button class="fechar" onclick="Close()">x</button>
+            <h2><i class="fas fa-search"></i> Busca de Clientes</h2>
+            <form action="" method="post" class="busca">
+                <input type="text" id="busca-clientes" name="busca-clientes" placeholder="Buscar cliente...">
+                <button type="submit" class="buscar"><i class="fas fa-search"></i></button>
+            </form>
+            <div class="overflow">    
+                <table id="tabela-clientes">
+                    <thead>
+                        <tr>
+                        <th>Cliente</th>
+                            <th>Valor total</th>
+                            <th>Status</th><!--Pago ou Pendente-->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <!-- Iterar sobre os efetuados para popular a table-->  
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="container-tvendas">
+            <button class="fechar" onclick="Close()">x</button>
+            <h2><i class="fas fa-chart-line"></i> Todas as vendas</h2>
+            <div class="overflow">
+                <table id="tabela-tvendas">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Bebida</th>
+                            <th>Tipo</th>
+                            <th>Quantidade</th>
+                            <th>Valor unitário</th>
+                            <th>Valor total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <!-- Iterar sobre os clientes para popular a table
+                            <td>Cliente 1</td>
+                            <td>Vinho</td>
+                            <td>Alcóolica</td>
+                            <td>R$ 5,00</td>
+                            <td>R$ 5,00</td>-->
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+
+    <script src="./scripts/home.js"></script>
+</body>
+</html>
