@@ -68,8 +68,10 @@ async function handleSubmitLogin(event) {
         console.log('Dados enviados com sucesso:', response.data);
         const token = response.data.token;
         const nome = response.data.nome;
+        const id = response.data.id;
         localStorage.setItem('token', token);
         localStorage.setItem('nome', nome);
+        localStorage.setItem('id', id);
         window.location.href = '/';
     } catch (error) {
         console.error('Erro ao enviar os dados:', error);

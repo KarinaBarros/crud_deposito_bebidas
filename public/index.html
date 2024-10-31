@@ -54,7 +54,7 @@
         <div id="container-cadastro">
             <button class="fechar" onclick="Close()">x</button>
             <h2 class="titulo-form"><i class="fas fa-wine-bottle"></i> Cadastro de Bebidas</h2>
-            <Form method="post" action="" class="formulario" id="form-cadastrob" onsubmit="submitForm(event)">
+            <Form class="formulario" id="form-cadastrob" onsubmit="return submitForm(event)">
                 <label for="nome-bebida" class="label-form">Nome do produto:</label>
                 <input type="text" id="nome-bebida" name="nome-bebida" class="input-form" required>
 
@@ -134,14 +134,7 @@
                             <th>Estoque</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <!-- Iterar sobre o estoque para popular a table
-                            <td>Alcóolica</td>
-                            <td>Vinho</td>
-                            <td>30</td>-->
-                        </tr>
-                    </tbody>
+                    <tbody id="tbody-estoque"></tbody>
                 </table>
             </div>
         </div>

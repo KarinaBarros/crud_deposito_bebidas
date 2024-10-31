@@ -1,4 +1,5 @@
 const token = localStorage.getItem('token');
+const id = localStorage.getItem('id');
 //Função para verificar rota protegida
 async function verificarToken() {
     if(token){
@@ -19,6 +20,37 @@ async function verificarToken() {
 }
 verificarToken();
 
+//Buscar estoque
+async function buscaEstoque() {
+    try{
+        const response = await axios.get('/api/estoque', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        let tbodyEstoque = document.getElementById('tbody-estoque');
+        response.data.forEach(function(item) {
+            let novaLinha = document.createElement("tr");
+
+            let tipo = document.createElement("td");
+            tipo.textContent = item.tipo;
+            novaLinha.appendChild(tipo);
+            let nome = document.createElement("td");
+            nome.textContent = item.nome;
+            novaLinha.appendChild(nome);
+            let unidades = document.createElement("td");
+            unidades.textContent = item.total_unidades;
+            novaLinha.appendChild(unidades);
+
+            tbodyEstoque.appendChild(novaLinha);
+        })
+        
+    }catch(error){
+        console.error('Erro:', error);
+    }
+}
+buscaEstoque();
+
 //Formataçao dinheiro
 function formatarDinheiro(input) {
    
@@ -27,17 +59,28 @@ function formatarDinheiro(input) {
     input.value = valor;
 }
 
+//Formatar para armazenar no db
+function extrairValor(moeda) {
+    // Remove o símbolo de moeda e espaços em branco
+    let valor = moeda.replace(/[^0-9,]/g, '').replace(',', '.');
+
+    // Converte a string em um número
+    return parseFloat(valor);
+}
+
 //nome do usuario
 const nomeStorage = localStorage.getItem('nome');
 if(nomeStorage){
     document.getElementById('nome-login').innerHTML = nomeStorage;
 }  
 
+
 //Alerta sair da conta
 function alertLogout(){
     if (confirm('Tem certeza que deseja sair da sua conta?')) {
         localStorage.removeItem('nome');
         localStorage.removeItem('token');
+        localStorage.removeItem('id');
         window.location.href = '/login';
     }
 }
@@ -232,10 +275,36 @@ function TVendas(){
 }
 
 //funçao submete o formulário e limpa o formulário sem recarregar a página. Permitindo que o usuario continue cadastrando. Emite alerta de cadastro efetuado no cadastro de produtos e venda confirmada no formulario de vendas.
-function submitForm(event) {
-    event.preventDefault(); 
-    document.getElementById("form-cadastrob").reset();
-    alert('Cadastro efetuado com sucesso!')
+async function submitForm(event) {
+    event.preventDefault();
+    //user_id, nome, tipo, quantidade_caixas, unidades_por_caixa, valor_gasto_por_caixa, valor_venda_por_unidade
+    if(token && id){
+        const formData = {
+            user_id: id,
+            nome: document.getElementById("nome-bebida").value,
+            tipo: document.getElementById("tipo-bebida").value,
+            quantidade_caixas: document. getElementById("unidade-caixa").value,
+            unidades_por_caixa: document.getElementById("unidade").value,
+            valor_gasto_por_caixa: extrairValor(document.getElementById("gasto-caixa").value),
+            valor_venda_por_unidade: extrairValor(document.getElementById("venda-unidade").value),
+        };
+    
+        try{
+            const response = await axios.post('/api/cadastro-bebidas', formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            alert(response.data.message);
+            buscaEstoque();
+            document.getElementById("form-cadastrob").reset();
+        }catch(error){
+            console.error('Erro ao enviar os dados:', error);
+            alert(error.message);
+        }
+    }else{
+        window.location.href = '/login'
+    }
 }
 
 function submitVenda(){

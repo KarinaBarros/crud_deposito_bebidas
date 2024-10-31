@@ -120,7 +120,8 @@ router.post('/login',limiter, async (req, res) => {
         removeRateLimit(req, res, () => {});
         res.json({ 
           token: token,
-          nome: user[0].nome
+          nome: user[0].nome,
+          id: user[0].id
         });
     } catch (error) {
         console.error('Erro ao autenticar usuário:', error);
