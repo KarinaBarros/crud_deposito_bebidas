@@ -46,6 +46,7 @@ table {
 #tabela-vendas{
     height: 250px;
     overflow: auto;
+    table-layout: fixed;
 }
 
 th, td {
@@ -53,6 +54,8 @@ th, td {
     padding: 8px;
     text-align: left;
     width: auto;
+    height: 20px;
+    line-height: 20px;
     font-family: var(--font2);
     font-size: 16px;
 }
@@ -263,6 +266,27 @@ input, select{
     background-color: rgb(0, 0, 0, 0);
     border: none;
     color: var(--color-text);
+}
+
+.btn-alterar-estoque{
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+.btn-alterar-estoque i{
+    color: red;
+    font-size: 20px;
+}
+
+#container-alterar-estoque{
+    display: none;
+}
+
+#nome-produto{
+    margin-bottom: 20px;
+    font-family: var(--font2);
+    font-size: 16px;
 }
 
 @media screen and (max-width: 1024px) {

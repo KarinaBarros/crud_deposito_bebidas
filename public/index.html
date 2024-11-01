@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,11 +11,14 @@
     <title>Zbox Cross</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
+
 <body>
     <div class="navigation">
         <nav class="nav-home" id="navigation-home">
-            <button id="c-bebidas" onclick="cadastroBebidas()"><i class="fas fa-wine-bottle"></i>Cadastro de Bebidas</button>
-            <button id="v-bebidas" onclick="vendasBebidas()"><i class="fas fa-shopping-cart"></i>Vendas de Bebidas</button>
+            <button id="c-bebidas" onclick="cadastroBebidas()"><i class="fas fa-wine-bottle"></i>Cadastro de
+                Bebidas</button>
+            <button id="v-bebidas" onclick="vendasBebidas()"><i class="fas fa-shopping-cart"></i>Vendas de
+                Bebidas</button>
             <button id="pagto" onclick="Pagamento()"><i class="far fa-credit-card"></i> Efetuar pagamento</button>
             <button id="pagto-p" onclick="Pendente()"><i class="far fa-clock"></i>Pagamentos Pendentes</button>
             <button id="pagto-e" onclick="Efetuado()"><i class="fas fa-check"></i>Pagamentos Efetuados</button>
@@ -38,18 +42,19 @@
         </div>
 
         <div id="container-principal">
-            
-                <h1 class="titulo">Z Box Cross Club</h1>
-                <div class="texto-principal">
-                    <img src="./imagens/logo.png" alt="zbox" class="logo2">
-                    <p class="paragrafo">Controle as vendas e o estoque do seu estabelecimento de maneira simples e eficaz.</p>
-                    <p class="paragrafo">Cadastre bebidas.</p>
-                    <p class="paragrafo">Insira as vendas.</p>
-                    <p class="paragrafo">Confirme pagamentos.</p>
-                    <p class="paragrafo">Verifique status de pagamento.</p>
-                    <p class="paragrafo">Verifique seu estoque.</p>
-                </div>
-            
+
+            <h1 class="titulo">Z Box Cross Club</h1>
+            <div class="texto-principal">
+                <img src="./imagens/logo.png" alt="zbox" class="logo2">
+                <p class="paragrafo">Controle as vendas e o estoque do seu estabelecimento de maneira simples e eficaz.
+                </p>
+                <p class="paragrafo">Cadastre bebidas.</p>
+                <p class="paragrafo">Insira as vendas.</p>
+                <p class="paragrafo">Confirme pagamentos.</p>
+                <p class="paragrafo">Verifique status de pagamento.</p>
+                <p class="paragrafo">Verifique seu estoque.</p>
+            </div>
+
         </div>
         <div id="container-cadastro">
             <button class="fechar" onclick="Close()">x</button>
@@ -68,18 +73,20 @@
                 <input type="number" min="0" id="unidade-caixa" name="unidade-caixa" class="input-form" required>
 
                 <label for="unidade" class="label-form">Unidades por caixa:</label>
-                <input type="number" min="0" id="unidade" name="unidade" class="input-form"  required>
+                <input type="number" min="0" id="unidade" name="unidade" class="input-form" required>
 
 
                 <label for="gasto-caixa" class="label-form">Valor Gasto por caixa:</label>
-                <input type="text" id="gasto-caixa" name="gasto-caixa" class="input-form" oninput="formatarDinheiro(this)" required>
+                <input type="text" id="gasto-caixa" name="gasto-caixa" class="input-form"
+                    oninput="formatarDinheiro(this)" required>
 
                 <label for="venda-unidade" class="label-form">Valor de venda por unidade:</label>
-                <input type="text" id="venda-unidade" name="venda-unidade" class="input-form" oninput="formatarDinheiro(this)" required>
+                <input type="text" id="venda-unidade" name="venda-unidade" class="input-form"
+                    oninput="formatarDinheiro(this)" required>
 
                 <div class="botoes">
                     <button type="submit" class="botao">Cadastrar</button>
-                    <button type="reset"  class="botao">Cancelar</button>
+                    <button type="reset" class="botao">Cancelar</button>
                 </div>
             </Form>
         </div>
@@ -89,7 +96,7 @@
             <h2><i class="fas fa-shopping-cart"></i> Vendas de bebidas</h2>
             <form action="" method="post" class="formulario">
 
-                <label for="venda-nome" class="label-form">Nome do cliente:</label> 
+                <label for="venda-nome" class="label-form">Nome do cliente:</label>
                 <input type="text" id="venda-nome" name="venda-nome" class="input-form" required>
 
                 <label for="venda-tipo" class="label-form">Tipo de bebida:</label>
@@ -104,38 +111,70 @@
                     <option value=""></option>
                 </select>
 
-                <label for="venda-quantidade" class="label-form">Quantidade:</label> 
+                <label for="venda-quantidade" class="label-form">Quantidade:</label>
                 <input type="number" min="0" id="venda-quantidade" name="venda-quantidade" class="input-form" required>
- 
+
                 <label for="venda-valor" class="label-form">Valor de venda por unidade:</label>
-                <input type="text" id="venda-valor" name="venda-valor" class="input-form" oninput="formatarDinheiro(this)" required>
+                <input type="text" id="venda-valor" name="venda-valor" class="input-form"
+                    oninput="formatarDinheiro(this)" required>
 
                 <div class="botoes">
-                    <button type="submit" class="botao"  id="form-venda" onsubmit="submitVenda(event)">Confirmar Venda</button>
-                    <button type="reset"  class="botao">Cancelar</button>
-                    <button type="button" onclick="Pagamento()"  class="botao">Fazer pagamento</button>
+                    <button type="submit" class="botao" id="form-venda" onsubmit="submitVenda(event)">Confirmar
+                        Venda</button>
+                    <button type="reset" class="botao">Cancelar</button>
+                    <button type="button" onclick="Pagamento()" class="botao">Fazer pagamento</button>
                 </div>
             </form>
         </div>
 
         <div id="container-estoque">
-            <button class="fechar" onclick="Close()">x</button>
-            <h2><i class="fas fa-warehouse"></i> Estoque</h2>
-            <form action="" method="post" class="busca">
-                <input type="text" id="pesquisa-estoque" name="pesquisa-estoque" placeholder="Buscar bebidas...">
-                <button type="submit" class="buscar"><i class="fas fa-search"></i></button>
-            </form>
-            <div class="overflow">
-                <table id="tabela-estoque">
-                    <thead>
-                        <tr>
-                            <th>Tipo </th>
-                            <th>Bebida</th>
-                            <th>Estoque</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-estoque"></tbody>
-                </table>
+            <div id="container-alterar-estoque">
+                <button class="fechar" onclick="CloseAlterarEstoque()">←</button>
+                <h2><i class="fas fa-edit"></i> Alterar estoque do produto</h2>
+                <p id="nome-produto"></p>
+                <form class="formulario" id="form-cadastro-alterar" onsubmit="return submitFormAlterar(event)">
+                    <label for="novo-venda-valor" class="label-form">Valor de venda por unidade:</label>
+                    <input type="text" id="novo-venda-valor" name="novo-venda-valor" class="input-form"
+                        oninput="formatarDinheiro(this)" required>
+
+                    <label for="novo-unidade-caixa" class="label-form">Quantidade de caixas a mais:</label>
+                    <input type="number" min="0" id="novo-unidade-caixa" name="novo-unidade-caixa" class="input-form"
+                        required>
+
+                    <label for="novo-unidade" class="label-form">Unidades por caixa:</label>
+                    <input type="number" min="0" id="novo-unidade" name="novo-unidade" class="input-form" required>
+
+
+                    <label for="novo-gasto-caixa" class="label-form">Valor Gasto por caixa:</label>
+                    <input type="text" id="novo-gasto-caixa" name="novo-gasto-caixa" class="input-form"
+                        oninput="formatarDinheiro(this)" required>
+
+                    <div class="botoes">
+                        <button type="submit" class="botao">Atualizar</button>
+                        <button type="reset" class="botao">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+            <div id="container-estoque-principal">
+                <button class="fechar" onclick="Close()">x</button>
+                <h2><i class="fas fa-warehouse"></i> Estoque</h2>
+                <form action="" method="post" class="busca">
+                    <input type="text" id="pesquisa-estoque" name="pesquisa-estoque" placeholder="Buscar bebidas...">
+                    <button class="buscar" disabled><i class="fas fa-search"></i></button>
+                </form>
+                <div class="overflow">
+                    <table id="tabela-estoque">
+                        <thead>
+                            <tr>
+                                <th>Tipo </th>
+                                <th>Bebida</th>
+                                <th>Estoque</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-estoque"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -159,7 +198,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    <!--iterar para popular a table
+                        <!--iterar para popular a table
                     <tr> 
                         <td>Cliente 1</td>
                         <td>Vinho</td>
@@ -177,9 +216,9 @@
                 <input type="text" id="total-pagto" class="input-form" oninput="formatarDinheiro(this)" readonly>
                 <div class="botoes">
                     <button type="button" class="botao" id="pix">Pix</button>
-                    <button type="button"  class="botao" id="cartao-credito">Crédito</button>
-                    <button type="button"  class="botao" id="cartao-debito">Débito</button>
-                    <button type="button"  class="botao" id="cdinheiro">Dinheiro</button>
+                    <button type="button" class="botao" id="cartao-credito">Crédito</button>
+                    <button type="button" class="botao" id="cartao-debito">Débito</button>
+                    <button type="button" class="botao" id="cdinheiro">Dinheiro</button>
                     <button type="reset" class="botao">Cancelar</button>
                 </div>
             </form>
@@ -232,18 +271,18 @@
                 <input type="text" id="busca-clientes" name="busca-clientes" placeholder="Buscar cliente...">
                 <button type="submit" class="buscar"><i class="fas fa-search"></i></button>
             </form>
-            <div class="overflow">    
+            <div class="overflow">
                 <table id="tabela-clientes">
                     <thead>
                         <tr>
-                        <th>Cliente</th>
+                            <th>Cliente</th>
                             <th>Valor total</th>
                             <th>Status</th><!--Pago ou Pendente-->
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <!-- Iterar sobre os efetuados para popular a table-->  
+                            <!-- Iterar sobre os efetuados para popular a table-->
                         </tr>
                     </tbody>
                 </table>
@@ -283,4 +322,5 @@
 
     <script src="./scripts/home.js"></script>
 </body>
+
 </html>
