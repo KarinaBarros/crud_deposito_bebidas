@@ -99,4 +99,16 @@ function authenticateToken(req, res, next) {
     }
   })
 
+  router.post('/clientes', authenticateToken, async(req, res) => {
+    const { user_id } = req.body;
+
+    try{
+      const response = await conn`SELECT * FROM vendas WHERE user_id = ${user_id}`;
+      res.json(response);
+    }catch(error){
+      console.error('Erro ao buscar clientes:', error);
+      res.status(500).json({ error: 'Erro ao processar a solicitação' });
+    }
+  })
+
   module.exports = router;

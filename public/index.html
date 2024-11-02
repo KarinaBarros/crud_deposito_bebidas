@@ -97,18 +97,15 @@
             <form action="" method="post" class="formulario">
 
                 <label for="venda-nome" class="label-form">Nome do cliente:</label>
-                <input type="text" id="venda-nome" name="venda-nome" class="input-form" required>
-
-                <label for="venda-tipo" class="label-form">Tipo de bebida:</label>
-                <select name="venda-tipo" id="venda-tipo" class="input-form">
-                    <option value="alcoolica">Alcóolica</option>
-                    <option value="nao-alcoolica">Não Alcóolica</option>
-                </select>
+                <input list="lista-nome" id="venda-nome" name="venda-nome" class="input-form" required>
+                <datalist id="lista-nome">
+                    
+                </datalist>
 
                 <label for="venda-bebida" class="label-form">Nome da bebida:</label>
-                <select id="venda-bebida" name="venda-bebida" class="input-form">
+                <select id="venda-bebida" name="venda-bebida" class="input-form" onchange="capturarPreco()" required>
+                    
                     <!--iterar sobre as bebidas cadastradas para popular o select-->
-                    <option value=""></option>
                 </select>
 
                 <label for="venda-quantidade" class="label-form">Quantidade:</label>
@@ -117,6 +114,7 @@
                 <label for="venda-valor" class="label-form">Valor de venda por unidade:</label>
                 <input type="text" id="venda-valor" name="venda-valor" class="input-form"
                     oninput="formatarDinheiro(this)" required>
+                    <br/><br/><br/>
 
                 <div class="botoes">
                     <button type="submit" class="botao" id="form-venda" onsubmit="submitVenda(event)">Confirmar

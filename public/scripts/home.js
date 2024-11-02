@@ -21,7 +21,7 @@ async function verificarToken() {
 verificarToken();
 
 
-//funçao para popular tabela de estoque
+//funçao para popular tabela de estoque enome de bebidas em vendas
 let idProdutoSelecionado;
 async function buscaEstoque() {
     if (id && token) {
@@ -34,6 +34,14 @@ async function buscaEstoque() {
 
             let tbodyEstoque = document.getElementById('tbody-estoque');
             tbodyEstoque.innerHTML = '';
+
+            let vendaBebida = document.getElementById('venda-bebida');
+            vendaBebida.innerHTML = '';
+            let linhaBranco = document.createElement('option');
+            linhaBranco.value = '';
+            linhaBranco.setAttribute('data-preco', '');
+            vendaBebida.appendChild(linhaBranco);
+            
 
             response.data.forEach(function (item) {
                 let novaLinha = document.createElement("tr");
@@ -69,9 +77,13 @@ async function buscaEstoque() {
                 tdbotao.appendChild(botao);
                 tdbotao.appendChild(botaoExcluir);
                 novaLinha.appendChild(tdbotao);
-
-
                 tbodyEstoque.appendChild(novaLinha);
+
+                let linhaVenda = document.createElement('option');
+                linhaVenda.value = item.id;
+                linhaVenda.textContent = item.nome;
+                linhaVenda.setAttribute('data-preco', item.valor_venda_por_unidade);
+                vendaBebida.appendChild(linhaVenda);
             });
 
         } catch (error) {
@@ -179,6 +191,7 @@ async function submitFormAlterar(event) {
     }
 }
 
+//função para excluir um produto do estoque
 async function IdExcluir(idProdutoExcluir) {
     if (token) {
         let resposta = confirm("Tem certeza que deseja excluir esse item?");
@@ -199,6 +212,48 @@ async function IdExcluir(idProdutoExcluir) {
     } else {
         window.location.href = '/login';
     }
+}
+
+//Função para buscar nomes dos clientes
+async function ListarClientes() {
+    
+
+    if(token && id){
+        try{
+            const response = await axios.post('/api/clientes', {user_id: id}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            let listaNome = document.getElementById('lista-nome');
+            listaNome.innerHTML = '';
+
+            response.data.forEach(function(item){
+                let linha = document.createElement('option');
+                linha.value = item.nome_cliente;
+                listaNome.appendChild(linha);
+            })
+        }catch(error){
+            console.error('Erro ao buscar clientes:', error);
+        }
+    }else{
+        window.location.href = '/login'
+    }
+}
+ListarClientes();
+
+//Função para capturar preço do produto
+function capturarPreco(){
+    let vendaBebida = document.getElementById('venda-bebida');
+    let optionSelecionada = vendaBebida.options[vendaBebida.selectedIndex];
+    let preco = optionSelecionada.getAttribute('data-preco');
+    
+    let valor = preco.replace(/\D/g, '');
+    valor = (Number(valor) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    let vendaValor = document.getElementById('venda-valor');
+    vendaValor.value = valor;
 }
 
 //Formataçao dinheiro
