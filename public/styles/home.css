@@ -224,6 +224,15 @@ input, select{
     width: 50%;
 }
 
+.busca-pagto{
+    display: flex;
+    width: 80%;
+}
+
+.busca-pagto select{
+    height: 30px;
+}
+
 .buscar{
     height: 30px;
     background-color: var(--color-text);

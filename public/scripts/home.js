@@ -21,7 +21,7 @@ async function verificarToken() {
 verificarToken();
 
 
-//funçao para popular tabela de estoque enome de bebidas em vendas
+//funçao para popular tabela de estoque e nome de bebidas em vendas
 let idProdutoSelecionado;
 async function buscaEstoque() {
     if (id && token) {
@@ -41,7 +41,7 @@ async function buscaEstoque() {
             linhaBranco.value = '';
             linhaBranco.setAttribute('data-preco', '');
             vendaBebida.appendChild(linhaBranco);
-            
+
 
             response.data.forEach(function (item) {
                 let novaLinha = document.createElement("tr");
@@ -216,11 +216,11 @@ async function IdExcluir(idProdutoExcluir) {
 
 //Função para buscar nomes dos clientes
 async function ListarClientes() {
-    
 
-    if(token && id){
-        try{
-            const response = await axios.post('/api/clientes', {user_id: id}, {
+
+    if (token && id) {
+        try {
+            const response = await axios.post('/api/clientes-pendente', { user_id: id }, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -228,33 +228,283 @@ async function ListarClientes() {
 
             let listaNome = document.getElementById('lista-nome');
             listaNome.innerHTML = '';
+            let linhaVazia = document.createElement('option');
+            linhaVazia.value = '';
+            linhaVazia.textContent = '';
+            listaNome.appendChild(linhaVazia);
 
-            response.data.forEach(function(item){
+            let pesquisaCliente = document.getElementById('pesquisa-cliente');
+            pesquisaCliente.innerHTML = '';
+            pesquisaCliente.appendChild(linhaVazia);
+
+            response.data.forEach(function (item) {
                 let linha = document.createElement('option');
-                linha.value = item.nome_cliente;
+                linha.value = item.id;
+                linha.textContent = item.nome_cliente;
                 listaNome.appendChild(linha);
+
+                let linhaPesquisa = document.createElement('option');
+                linhaPesquisa.value = item.id;
+                linhaPesquisa.textContent = item.nome_cliente;
+                pesquisaCliente.appendChild(linhaPesquisa);
             })
-        }catch(error){
+
+            listaNome.value = '';
+            pesquisaCliente.value = '';
+        } catch (error) {
             console.error('Erro ao buscar clientes:', error);
         }
-    }else{
-        window.location.href = '/login'
+    } else {
+        window.location.href = '/login';
     }
 }
 ListarClientes();
 
 //Função para capturar preço do produto
-function capturarPreco(){
+function capturarPreco() {
     let vendaBebida = document.getElementById('venda-bebida');
     let optionSelecionada = vendaBebida.options[vendaBebida.selectedIndex];
     let preco = optionSelecionada.getAttribute('data-preco');
-    
+
     let valor = preco.replace(/\D/g, '');
     valor = (Number(valor) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     let vendaValor = document.getElementById('venda-valor');
     vendaValor.value = valor;
 }
+
+//Funçao para enviar formulário de vendas
+async function submitFormVendas(event) {
+    event.preventDefault();
+    //user_id, nome_cliente, bebida_id, quantidade
+    //vendas_nova_comanda
+
+    if (token && id) {
+        const vendaNome = document.getElementById('venda-nome').value;
+        const listaNome = document.getElementById('lista-nome').value;
+        const vendaBebida = document.getElementById('venda-bebida').value;
+        const vendaQuantidade = document.getElementById('venda-quantidade').value;
+        if (vendaNome && listaNome) {
+            alert('Escolha somente um dos campos de nomes');
+            return;
+        }
+        if (vendaNome || listaNome) {
+            if (vendaNome) {
+                try {
+                    const data = {
+                        user_id: id,
+                        nome_cliente: vendaNome,
+                        bebida_id: vendaBebida,
+                        quantidade: vendaQuantidade
+                    }
+                    const response = await axios.post('/api/vendas_nova_comanda', data, {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    alert(response.data.message);
+                    document.getElementById('form-vendas').reset();
+
+                    ListarClientes();
+                    TodosClientes();
+                } catch (error) {
+                    console.error('Erro ao inserir venda de nova comanda:', error);
+                }
+            } else {
+                try {
+                    const data = {
+                        venda_id: listaNome,
+                        bebida_id: vendaBebida,
+                        quantidade: vendaQuantidade
+                    }
+                    const response = await axios.post('/api/venda', data, {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                    alert(response.data.message);
+                    document.getElementById('venda-bebida').value = '';
+                    document.getElementById('venda-quantidade').value = '';
+                    document.getElementById('venda-valor').value = '';
+                    TodosClientes();
+                } catch (error) {
+                    console.error('Erro ao inserir venda:', error);
+                }
+            }
+        } else {
+            alert('Escolha uma comanda ou adicione um nome pra nova comanda.');
+        }
+    } else {
+        window.location.href = '/login';
+    }
+
+}
+
+//função para buscar itens comprados pelo cliente
+async function BuscarCliente(event) {
+    event.preventDefault();
+    try {
+        const pesquisaCliente = document.getElementById('pesquisa-cliente').value;
+        const response = await axios.post('/api/busca_cliente', { venda_id: pesquisaCliente }, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        console.log(response.data);
+        let tbody = document.getElementById('tbody-pagto');
+        tbody.innerHTML = '';
+
+        let total = 0;
+
+        response.data.forEach(function (item) {
+            let novaLinha = document.createElement("tr");
+
+            let tdbebida = document.createElement("td");
+            tdbebida.textContent = item.nome;
+            novaLinha.appendChild(tdbebida);
+
+            let tdquantidade = document.createElement("td");
+            tdquantidade.textContent = item.quantidade;
+            novaLinha.appendChild(tdquantidade);
+
+            let tdValorU = document.createElement("td");
+            let valor = item.valor_venda_por_unidade.replace(/\D/g, '');
+            valor = (Number(valor) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            tdValorU.textContent = valor;
+            novaLinha.appendChild(tdValorU);
+
+            let tdValorT = document.createElement("td");
+            let valorT = item.valor_venda_por_unidade * item.quantidade;
+            let valorTFormatado = valorT.toFixed(2).replace(/\D/g, '');
+            valorTFormatado = (Number(valorTFormatado) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            tdValorT.textContent = valorTFormatado;
+            novaLinha.appendChild(tdValorT);
+
+            total += valorT;
+
+            tbody.appendChild(novaLinha);
+        })
+        total = total.toFixed(2).replace(/\D/g, '');
+        total = (Number(total) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        document.getElementById('total-pagto').value = total;
+
+    } catch (error) {
+        console.error('Erro ao buscar cliente:', error);
+    }
+}
+
+//Funçao para excluir dados do pagamento
+function excluirDadosPagto() {
+    let tbody = document.getElementById('tbody-pagto');
+    tbody.innerHTML = '';
+    document.getElementById('total-pagto').value = '';
+    document.getElementById('pesquisa-cliente').value = '';
+}
+
+async function EfetuarPagto(tipoPagto) {
+    const pesquisaCliente = document.getElementById('pesquisa-cliente').value;
+    const listaProdutos = document.getElementById('tbody-pagto');
+    if(!token && id){
+        window.location.href = '/login';
+    }
+    if (listaProdutos.rows.length > 0) {
+        const confirm = window.confirm(`Deseja concluir pagamento com ${tipoPagto}`);
+        if(confirm){
+            try {
+                const data = {
+                    id : pesquisaCliente,
+                    forma_pagto: tipoPagto
+                }
+                const response = await axios.post('/api/concluir_venda', data, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+                alert(response.data.message);
+                ListarClientes();
+                excluirDadosPagto();
+                TodosClientes();
+            } catch (error) {
+                console.error('Erro ao confirmar venda:', error);
+            }
+        }
+    } else {
+        alert('Abra uma comanda!');
+    }
+}
+
+//Função para buscar todos os clientes
+async function TodosClientes() {
+    if(!token && id){
+        window.location.href = '/login';
+    }
+    try{
+        const response = await axios.post('/api/todos-clientes', {user_id:id}, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        console.log(response.data);
+        const tbodyBusca = document.getElementById('tbody-busca');
+        tbodyBusca.innerHTML = '';
+
+        response.data.forEach(function (item) {
+            let linha = document.createElement("tr");
+
+            let tdCliente = document.createElement("td");
+            tdCliente.textContent = item.nome_cliente;
+            linha.appendChild(tdCliente);
+
+            let tdTotal = document.createElement("td");
+            let valor = item.valor_total_venda.replace(/\D/g, '');
+            valor = (Number(valor) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            tdTotal.textContent = valor;
+            linha.appendChild(tdTotal);
+
+            let tdStatus = document.createElement("td");
+            tdStatus.textContent = item.status;
+            let cor;
+            if(item.status === 'pendente'){
+                cor = 'red';
+            }else{
+                cor = 'green';
+            }
+            tdStatus.style.color = cor;
+            linha.appendChild(tdStatus);
+
+            tbodyBusca.appendChild(linha);
+        })
+
+
+    }catch (error) {
+        console.error('Erro ao bucar todos os clientes:', error);
+    }
+}
+TodosClientes();
+
+//pesquisar em todos os clientes
+const searchInputClientes = document.getElementById("busca-clientes");
+const tableBodyClientes = document.getElementById("tbody-busca");
+
+searchInputClientes.addEventListener("input", function () {
+    const query = this.value.toLowerCase(); // Captura o texto do input em minúsculas
+    const rows = tableBodyClientes.getElementsByTagName("tr"); // Seleciona todas as linhas do tbody específico de estoque
+
+    for (let row of rows) {
+        const nomeCell = row.cells[0]; // Seleciona a primeira coluna (index 1) que contém o nome do produto
+        const itemText = nomeCell ? nomeCell.textContent.toLowerCase() : ""; // Conteúdo do <td> em minúsculas
+
+        // Exibe a linha se o nome do produto incluir o valor da pesquisa; caso contrário, esconde.
+        if (itemText.includes(query)) {
+            row.style.display = ""; // Exibe a linha
+        } else {
+            row.style.display = "none"; // Oculta a linha
+        }
+    }
+});
+
+
 
 //Formataçao dinheiro
 function formatarDinheiro(input) {
@@ -296,21 +546,17 @@ var containerCadastro = document.getElementById('container-cadastro');
 var containerVendas = document.getElementById('container-vendas');
 var containerEstoque = document.getElementById('container-estoque');
 var containerPagamento = document.getElementById('container-pagamento');
-var containerPendente = document.getElementById('container-pendente');
-var containerEfetuado = document.getElementById('container-efetuado');
 var containerBusca = document.getElementById('container-busca');
 var containerTVendas = document.getElementById('container-tvendas');
-var allContainers = [containerPrincipal, containerCadastro, containerVendas, containerEstoque, containerPagamento, containerPendente, containerEfetuado, containerBusca, containerTVendas];
+var allContainers = [containerPrincipal, containerCadastro, containerVendas, containerEstoque, containerPagamento, containerBusca, containerTVendas];
 
 var botaoCBebidas = document.getElementById('c-bebidas');
 var botaoVBebidas = document.getElementById('v-bebidas');
 var botaoPagto = document.getElementById('pagto');
-var botaoPagtoP = document.getElementById('pagto-p');
-var botaoPagtoE = document.getElementById('pagto-e');
 var botaoBuscaC = document.getElementById('busca-c');
 var botaoTodasV = document.getElementById('todas-v');
 var botaoEstoqueB = document.getElementById('estoque-b');
-var allBotao = [botaoCBebidas, botaoVBebidas, botaoPagto, botaoPagtoP, botaoPagtoE, botaoBuscaC, botaoTodasV, botaoEstoqueB];
+var allBotao = [botaoCBebidas, botaoVBebidas, botaoPagto, botaoBuscaC, botaoTodasV, botaoEstoqueB];
 
 var hamburgerMenu = document.getElementById('hamburger-menu');
 var closeMenu = document.getElementById('close-menu');
@@ -412,39 +658,7 @@ function Pagamento() {
     botaoPagto.style.borderBottom = '2px solid var(--color-highlight)';
 
     closeNav2();
-}
-
-function Pendente() {
-    for (var i = 0; i < allContainers.length; i++) {
-        allContainers[i].style.display = 'none';
-    }
-    containerPendente.style.display = 'block';
-
-
-    for (var ib = 0; ib < allBotao.length; ib++) {
-        allBotao[ib].style.color = 'var(--color-text)';
-        allBotao[ib].style.borderBottom = '2px solid var(--color-text)';
-    }
-    botaoPagtoP.style.color = 'var(--color-highlight)';
-    botaoPagtoP.style.borderBottom = '2px solid var(--color-highlight)';
-
-    closeNav2();
-}
-
-function Efetuado() {
-    for (var i = 0; i < allContainers.length; i++) {
-        allContainers[i].style.display = 'none';
-    }
-    containerEfetuado.style.display = 'block';
-
-
-    for (var ib = 0; ib < allBotao.length; ib++) {
-        allBotao[ib].style.color = 'var(--color-text)';
-        allBotao[ib].style.borderBottom = '2px solid var(--color-text)';
-    }
-    botaoPagtoE.style.color = 'var(--color-highlight)';
-    botaoPagtoE.style.borderBottom = '2px solid var(--color-highlight)';
-    closeNav2();
+    excluirDadosPagto();
 }
 
 function Busca() {

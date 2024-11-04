@@ -20,6 +20,8 @@ CREATE TABLE vendas (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     nome_cliente VARCHAR(100) NOT NULL,
+    status VARCHAR(20) DEFAULT 'pendente',
+    forma_pagto VARCHAR(25),
     data_venda TIMESTAMP DEFAULT NOW(),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

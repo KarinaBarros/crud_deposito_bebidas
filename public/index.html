@@ -20,11 +20,9 @@
             <button id="v-bebidas" onclick="vendasBebidas()"><i class="fas fa-shopping-cart"></i>Vendas de
                 Bebidas</button>
             <button id="pagto" onclick="Pagamento()"><i class="far fa-credit-card"></i> Efetuar pagamento</button>
-            <button id="pagto-p" onclick="Pendente()"><i class="far fa-clock"></i>Pagamentos Pendentes</button>
-            <button id="pagto-e" onclick="Efetuado()"><i class="fas fa-check"></i>Pagamentos Efetuados</button>
             <button id="busca-c" onclick="Busca()"><i class="fas fa-search"></i>
                 Busca de Clientes</button>
-            <button id="todas-v" onclick="TVendas()"><i class="fas fa-chart-line"></i>Todas as Vendas</button>
+            <button id="todas-v" onclick="TVendas()"><i class="fas fa-chart-line"></i>Controle de caixa</button>
             <button id="estoque-b" onclick="Estoque()"><i class="fas fa-warehouse"></i>Estoque</button>
         </nav>
         <button id="hamburger-menu" onclick="toggleNav()">&#9776;</button>
@@ -94,13 +92,15 @@
         <div id="container-vendas">
             <button class="fechar" onclick="Close()">x</button>
             <h2><i class="fas fa-shopping-cart"></i> Vendas de bebidas</h2>
-            <form action="" method="post" class="formulario">
+            <form action="" method="post" id="form-vendas" class="formulario" onsubmit="return submitFormVendas(event)">
 
-                <label for="venda-nome" class="label-form">Nome do cliente:</label>
-                <input list="lista-nome" id="venda-nome" name="venda-nome" class="input-form" required>
-                <datalist id="lista-nome">
+                <label for="venda-nome" class="label-form">Nome do cliente para nova comanda:</label>
+                <input type="text" id="venda-nome" name="venda-nome" class="input-form" autocomplete="off">
+
+                <label for="lista-nome" class="label-form">Comandas abertas:</label>
+                <select id="lista-nome">
                     
-                </datalist>
+                </select>
 
                 <label for="venda-bebida" class="label-form">Nome da bebida:</label>
                 <select id="venda-bebida" name="venda-bebida" class="input-form" onchange="capturarPreco()" required>
@@ -113,7 +113,7 @@
 
                 <label for="venda-valor" class="label-form">Valor de venda por unidade:</label>
                 <input type="text" id="venda-valor" name="venda-valor" class="input-form"
-                    oninput="formatarDinheiro(this)" required>
+                    oninput="formatarDinheiro(this)" disabled>
                     <br/><br/><br/>
 
                 <div class="botoes">
@@ -179,32 +179,25 @@
         <div id="container-pagamento">
             <button class="fechar" onclick="Close()">x</button>
             <h2><i class="far fa-credit-card"></i> Efetuar Pagamentos</h2>
-            <form action="" method="post" class="busca">
-                <input type="text" id="pesquisa-cliente" name="pesquisa-cliente" placeholder="Buscar cliente...">
+            <form class="busca-pagto" onsubmit="return BuscarCliente(event)">
+                <label for="pesquisa-cliente" class="label-form">Buscar cliente:</label>
+                <select type="text" id="pesquisa-cliente" name="pesquisa-cliente" required>
+
+                </select>
                 <button type="submit" class="buscar"><i class="fas fa-search"></i></button>
             </form>
             <div class="overflow-pagto">
                 <table id="tabela-vendas">
                     <thead>
                         <tr>
-                            <th>Cliente</th>
                             <th>Bebida</th>
-                            <th>Tipo</th>
                             <th>Quantidade</th>
                             <th>Valor unitário</th>
                             <th>Valor total</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tbody-pagto">
                         <!--iterar para popular a table
-                    <tr> 
-                        <td>Cliente 1</td>
-                        <td>Vinho</td>
-                        <td>Alcóolica</td>
-                        <td>R$ 5,00</td>
-                        <td>R$ 5,00</td>
-                        <td>5,00</td>
-                    </tr>
                     -->
                     </tbody>
                 </table>
@@ -213,53 +206,13 @@
                 <label for="total-pagto" class="label-form, label-total">Total:</label>
                 <input type="text" id="total-pagto" class="input-form" oninput="formatarDinheiro(this)" readonly>
                 <div class="botoes">
-                    <button type="button" class="botao" id="pix">Pix</button>
-                    <button type="button" class="botao" id="cartao-credito">Crédito</button>
-                    <button type="button" class="botao" id="cartao-debito">Débito</button>
-                    <button type="button" class="botao" id="cdinheiro">Dinheiro</button>
-                    <button type="reset" class="botao">Cancelar</button>
+                    <button type="button" class="botao" id="pix" onclick="EfetuarPagto('pix')">Pix</button>
+                    <button type="button" class="botao" id="cartao-credito" onclick="EfetuarPagto('credito')">Crédito</button>
+                    <button type="button" class="botao" id="cartao-debito" onclick="EfetuarPagto('debito')">Débito</button>
+                    <button type="button" class="botao" id="cdinheiro" onclick="EfetuarPagto('dinheiro')">Dinheiro</button>
+                    <button type="button" class="botao" onclick="excluirDadosPagto()">Cancelar</button>
                 </div>
             </form>
-        </div>
-
-        <div id="container-pendente">
-            <button class="fechar" onclick="Close()">x</button>
-            <h2><i class="far fa-clock"></i> Pagamentos Pendentes</h2>
-            <div class="overflow">
-                <table id="tabela-pendentes">
-                    <thead>
-                        <tr>
-                            <th>Cliente</th>
-                            <th>Valor total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <!-- Iterar sobre os pendentes para popular a table-->
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div id="container-efetuado">
-            <button class="fechar" onclick="Close()">x</button>
-            <h2><i class="fas fa-check"></i> Pagamentos Efetuados</h2>
-            <div class="overflow">
-                <table id="tabela-efetuados">
-                    <thead>
-                        <tr>
-                            <th>Cliente</th>
-                            <th>Valor total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <!-- Iterar sobre os efetuados para popular a table-->
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
         </div>
 
         <div id="container-busca">
@@ -267,7 +220,7 @@
             <h2><i class="fas fa-search"></i> Busca de Clientes</h2>
             <form action="" method="post" class="busca">
                 <input type="text" id="busca-clientes" name="busca-clientes" placeholder="Buscar cliente...">
-                <button type="submit" class="buscar"><i class="fas fa-search"></i></button>
+                <button type="submit" class="buscar" disabled><i class="fas fa-search"></i></button>
             </form>
             <div class="overflow">
                 <table id="tabela-clientes">
@@ -278,10 +231,8 @@
                             <th>Status</th><!--Pago ou Pendente-->
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
+                    <tbody id="tbody-busca">
                             <!-- Iterar sobre os efetuados para popular a table-->
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -289,7 +240,7 @@
 
         <div id="container-tvendas">
             <button class="fechar" onclick="Close()">x</button>
-            <h2><i class="fas fa-chart-line"></i> Todas as vendas</h2>
+            <h2><i class="fas fa-chart-line"></i> Controle de caixa</h2>
             <div class="overflow">
                 <table id="tabela-tvendas">
                     <thead>
