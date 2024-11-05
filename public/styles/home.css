@@ -298,6 +298,23 @@ input, select{
     font-size: 16px;
 }
 
+#caixa-fechado{
+    display: none;
+    text-align: center;
+    font-family: var(--font2);
+    font-size: 25px;
+    line-height: 2;
+}
+
+#caixa-aberto{
+    display: none;
+    font-family: var(--font2);
+    font-size: 20px;
+    padding-left: 40px;
+    line-height: 1.5;
+}
+
+
 @media screen and (max-width: 1024px) {
     body{
         flex-direction: column;

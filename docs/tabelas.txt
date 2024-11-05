@@ -34,3 +34,20 @@ CREATE TABLE vendas_bebidas (
     FOREIGN KEY (venda_id) REFERENCES vendas(id) ON DELETE CASCADE,
     FOREIGN KEY (bebida_id) REFERENCES bebidas(id) ON DELETE CASCADE
 );
+
+CREATE TABLE caixa (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    nome_operador VARCHAR(100),
+    status VARCHAR(20),
+    dinheiro NUMERIC(10, 2) NOT NULL,
+    dinheiro_final NUMERIC(10, 2) DEFAULT 0,
+    retirada NUMERIC(10, 2) DEFAULT 0,
+    pix NUMERIC(10, 2) DEFAULT 0,
+    credito NUMERIC(10, 2) DEFAULT 0,
+    debito NUMERIC(10, 2) DEFAULT 0,
+    lucro NUMERIC(10, 2) DEFAULT 0,
+    hora_inicial TIMESTAMP DEFAULT NOW(),
+    hora_final TIMESTAMP DEFAULT NOW(),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

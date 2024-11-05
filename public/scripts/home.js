@@ -273,6 +273,13 @@ function capturarPreco() {
     vendaValor.value = valor;
 }
 
+//Limpar lista de nomes
+const eventoNome = document.getElementById('venda-nome');
+const eventoLista = document.getElementById('lista-nome');
+eventoNome.addEventListener('input', function() { 
+    eventoLista.value = ''; // Seleciona a opção vazia
+});
+
 //Funçao para enviar formulário de vendas
 async function submitFormVendas(event) {
     event.preventDefault();
@@ -305,6 +312,7 @@ async function submitFormVendas(event) {
                     alert(response.data.message);
                     document.getElementById('form-vendas').reset();
 
+                    buscaEstoque();
                     ListarClientes();
                     TodosClientes();
                 } catch (error) {
@@ -326,6 +334,7 @@ async function submitFormVendas(event) {
                     document.getElementById('venda-bebida').value = '';
                     document.getElementById('venda-quantidade').value = '';
                     document.getElementById('venda-valor').value = '';
+                    buscaEstoque();
                     TodosClientes();
                 } catch (error) {
                     console.error('Erro ao inserir venda:', error);
@@ -402,18 +411,23 @@ function excluirDadosPagto() {
     document.getElementById('pesquisa-cliente').value = '';
 }
 
+//função para efetuar pagamento
 async function EfetuarPagto(tipoPagto) {
     const pesquisaCliente = document.getElementById('pesquisa-cliente').value;
     const listaProdutos = document.getElementById('tbody-pagto');
-    if(!token && id){
+    if (!token && id) {
         window.location.href = '/login';
+    }
+    if (statusCaixa  === 'fechado'){
+        alert('Abra um caixa para confirmar o pagamento');
+        return;
     }
     if (listaProdutos.rows.length > 0) {
         const confirm = window.confirm(`Deseja concluir pagamento com ${tipoPagto}`);
-        if(confirm){
+        if (confirm) {
             try {
                 const data = {
-                    id : pesquisaCliente,
+                    id: pesquisaCliente,
                     forma_pagto: tipoPagto
                 }
                 const response = await axios.post('/api/concluir_venda', data, {
@@ -425,8 +439,9 @@ async function EfetuarPagto(tipoPagto) {
                 ListarClientes();
                 excluirDadosPagto();
                 TodosClientes();
+                CaixaAberto();
             } catch (error) {
-                console.error('Erro ao confirmar venda:', error);
+                console.error('Erro ao confirmar pagamento:', error);
             }
         }
     } else {
@@ -436,11 +451,11 @@ async function EfetuarPagto(tipoPagto) {
 
 //Função para buscar todos os clientes
 async function TodosClientes() {
-    if(!token && id){
+    if (!token && id) {
         window.location.href = '/login';
     }
-    try{
-        const response = await axios.post('/api/todos-clientes', {user_id:id}, {
+    try {
+        const response = await axios.post('/api/todos-clientes', { user_id: id }, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -465,9 +480,9 @@ async function TodosClientes() {
             let tdStatus = document.createElement("td");
             tdStatus.textContent = item.status;
             let cor;
-            if(item.status === 'pendente'){
+            if (item.status === 'pendente') {
                 cor = 'red';
-            }else{
+            } else {
                 cor = 'green';
             }
             tdStatus.style.color = cor;
@@ -477,7 +492,7 @@ async function TodosClientes() {
         })
 
 
-    }catch (error) {
+    } catch (error) {
         console.error('Erro ao bucar todos os clientes:', error);
     }
 }
@@ -503,7 +518,164 @@ searchInputClientes.addEventListener("input", function () {
         }
     }
 });
+let statusCaixa;
 
+//definir status do caixa
+async function StatusCaixa() {
+    if (!token && id) {
+        window.location.href = '/login';
+    }
+    const caixaFechado = document.getElementById('caixa-fechado');
+    const caixaAberto = document.getElementById('caixa-aberto');
+    try {
+        const response = await axios.post('/api/status-caixa', { user_id: id }, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        if (response.data.message === 'fechado') {
+            caixaFechado.style.display = 'block';
+        } else {
+            caixaAberto.style.display = 'block';
+            CaixaAberto();
+        }
+        statusCaixa = response.data.message;
+    } catch (error) {
+        console.error('Erro ao bucar status do caixa:', error);
+    }
+}
+StatusCaixa();
+
+//abrir o caixa
+async function AbrirCaixa(event) {
+    event.preventDefault();
+    const nomeOperador = document.getElementById('nome-operador').value;
+    const dinheiroInicial = document.getElementById('dinheiro-inicial').value;
+    const dinheiroFormatado = extrairValor(dinheiroInicial);
+    const caixaFechado = document.getElementById('caixa-fechado');
+    const caixaAberto = document.getElementById('caixa-aberto');
+    if (!token && id) {
+        window.location.href = '/login';
+    }
+    const data = {
+        user_id: id,
+        nome_operador: nomeOperador,
+        dinheiro: dinheiroFormatado
+    }
+    try {
+        const response = await axios.post('/api/abrir-caixa', data, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        statusCaixa = 'aberto';
+        alert(response.data.message);
+        CaixaAberto();
+        caixaFechado.style.display = 'none';
+        caixaAberto.style.display = 'block';
+    } catch (error) {
+        console.error('Erro ao abrir caixa:', error);
+        alert('Erro ao abrir o caixa.');
+    }
+}
+
+function formatDinheiro(valorInicial) {
+    let valor = valorInicial.replace(/\D/g, '');
+    valor = (Number(valor) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    return (valor);
+}
+
+//Dados do caixa
+let idCaixa;
+async function CaixaAberto() {
+    if (!token && id) {
+        window.location.href = '/login';
+    }
+    const statusNome = document.getElementById('status-nome');
+    const dinheiroCaixa = document.getElementById('dinheiro-caixa');
+    const retiradaCaixa = document.getElementById('retirada-caixa');
+    const pixCaixa = document.getElementById('pix-caixa');
+    const debitoCaixa = document.getElementById('debito-caixa');
+    const creditoCaixa = document.getElementById('credito-caixa');
+
+    try {
+        const response = await axios.post('/api/caixa-aberto', { user_id: id }, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        console.log(response.data);
+        statusNome.textContent = `Caixa aberto por ${response.data[0].nome_operador}`;
+        dinheiroCaixa.textContent = `Dinheiro: ${formatDinheiro(response.data[0].dinheiro)}`;
+        retiradaCaixa.textContent = `Retirada: ${formatDinheiro(response.data[0].retirada)}`;
+        pixCaixa.textContent = `Pix: ${formatDinheiro(response.data[0].pix)}`;
+        debitoCaixa.textContent = `Débito: ${formatDinheiro(response.data[0].debito)}`;
+        creditoCaixa.textContent = `Crédito: ${formatDinheiro(response.data[0].credito)}`;
+        idCaixa = response.data[0].id;
+    } catch (error) {
+        console.error('Erro ao pesquisar dados do caixa:', error);
+    }
+}
+
+//Funçao para fazer retirada
+async function fazerRetirada(event) {
+    event.preventDefault();
+    if (!token) {
+        window.location.href = '/login';
+    }
+    const dinheiroRetirada = document.getElementById('dinheiro-retirada').value;
+    const data = {
+        id : idCaixa,
+        retirada : extrairValor(dinheiroRetirada)
+    };
+    const confirm = window.confirm(`Confirma retirada de ${dinheiroRetirada}`);
+    if(confirm){
+        try {
+            const response = await axios.post('/api/retirada', data, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            alert(response.data.message);
+            CaixaAberto();
+        } catch (error) {
+            console.error('Erro ao fazer retirada:', error);
+            alert('Erro ao fazer retirada!');
+        }
+    }
+
+}
+
+async function Fechamento(event) {
+    event.preventDefault();
+    if (!token) {
+        window.location.href = '/login';
+    }
+    const dinheiroFechamento = document.getElementById('dinheiro-fechamento').value;
+    const data = {
+        id : idCaixa,
+        dinheiro_final : extrairValor(dinheiroFechamento)
+    };
+    const confirm = window.confirm('Confirma fechamento de caixa?');
+    if(confirm){
+        try {
+            const response = await axios.post('/api/fechamento', data, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            alert(response.data.message);
+            statusCaixa = 'fechado';
+            const caixaAberto = document.getElementById('caixa-aberto');
+            caixaAberto.style.display = 'none';
+            StatusCaixa();
+        } catch (error) {
+            console.error('Erro ao fechar caixa:', error);
+            alert('Erro ao fechar caixa!');
+        }
+    }
+
+}
 
 
 //Formataçao dinheiro

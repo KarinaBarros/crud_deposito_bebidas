@@ -124,6 +124,7 @@ router.post('/vendas_nova_comanda', authenticateToken, async (req, res) => {
       const venda_id = response[0].id;
       console.log('id:', venda_id);
       await conn`INSERT INTO vendas_bebidas (venda_id, bebida_id, quantidade) VALUES (${venda_id}, ${bebida_id}, ${quantidade})`;
+      await conn`UPDATE bebidas SET total_unidades = total_unidades - ${quantidade} WHERE id = ${bebida_id}`;
       res.status(200).json({ message: 'Venda inserida!' });
     }
   } catch (error) {
@@ -136,6 +137,7 @@ router.post('/venda', authenticateToken, async (req, res) => {
   const { venda_id, bebida_id, quantidade } = req.body;
   try {
     await conn`INSERT INTO vendas_bebidas (venda_id, bebida_id, quantidade) VALUES (${venda_id}, ${bebida_id}, ${quantidade})`;
+    await conn`UPDATE bebidas SET total_unidades = total_unidades - ${quantidade} WHERE id = ${bebida_id}`;
     res.status(200).json({ message: 'Venda inserida!' });
   } catch (error) {
     console.error('Erro ao inserir venda:', error);
@@ -161,11 +163,30 @@ router.post('/busca_cliente', authenticateToken, async (req, res) => {
 router.post('/concluir_venda', authenticateToken, async (req, res) => {
   const { id, forma_pagto } = req.body;
   try {
-    await conn`UPDATE vendas 
-                SET forma_pagto = ${forma_pagto},
-                status = 'efetuado'
-                WHERE id = ${id}
-                `;
+    await conn`UPDATE vendas SET forma_pagto = ${forma_pagto}, status = 'efetuado' WHERE id = ${id}`;
+    const response = await conn`SELECT vb.*, b.*, vb.quantidade
+                                  FROM vendas_bebidas vb
+                                  INNER JOIN bebidas b ON vb.bebida_id = b.id
+                                  WHERE vb.venda_id = ${id}`;
+    console.log(response);
+    let total = 0;
+    let lucro = 0;
+    response.forEach(item => {
+      total += (item.valor_venda_por_unidade * item.quantidade);
+      lucro += ((item.valor_venda_por_unidade - item.custo_por_unidade) * item.quantidade);
+    });
+    if(forma_pagto === 'dinheiro'){
+      await conn`UPDATE caixa SET dinheiro = dinheiro + ${total}, lucro = lucro + ${lucro}`;
+    }
+    if(forma_pagto === 'pix'){
+      await conn`UPDATE caixa SET pix = pix + ${total}, lucro = lucro + ${lucro}`;
+    }
+    if(forma_pagto === 'debito'){
+      await conn`UPDATE caixa SET debito = debito + ${total}, lucro = lucro + ${lucro}`;
+    }
+    if(forma_pagto === 'credito'){
+      await conn`UPDATE caixa SET credito = credito + ${total}, lucro = lucro + ${lucro}`;
+    }
     res.status(200).json({ message: 'Pagamento efetuado!' });
   } catch (error) {
     console.error('Erro ao confirmar pagamento:', error);
@@ -194,6 +215,70 @@ router.post('/todos-clientes', authenticateToken, async (req, res) => {
     res.json(response);
   } catch (error) {
     console.error('Erro ao buscar clientes:', error);
+    res.status(500).json({ error: 'Erro ao processar a solicitação' });
+  }
+})
+
+router.post('/status-caixa', authenticateToken, async (req, res) => {
+  const { user_id } = req.body;
+
+  try {
+    const caixa = await conn`SELECT * FROM caixa WHERE user_id = ${user_id} AND status = 'aberto'`;
+    if (caixa.length > 0) {
+      res.status(200).json({ message: 'aberto' });
+    } else {
+      res.status(200).json({ message: 'fechado' });
+    }
+  } catch (error) {
+    console.error('Erro ao abrir o caixa:', error);
+    res.status(500).json({ error: 'Erro ao processar a solicitação' });
+  }
+})
+
+router.post('/abrir-caixa', authenticateToken, async (req, res) => {
+  const { user_id, nome_operador, dinheiro } = req.body;
+
+  try {
+    await conn`INSERT INTO caixa (user_id, nome_operador, dinheiro, status) VALUES (${user_id}, ${nome_operador}, ${dinheiro}, 'aberto')`;
+    res.status(200).json({ message: 'Caixa aberto com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao abrir o caixa:', error);
+    res.status(500).json({ error: 'Erro ao processar a solicitação' });
+  }
+})
+
+router.post('/caixa-aberto', authenticateToken, async (req, res) => {
+  const { user_id } = req.body;
+
+  try {
+    const response = await conn`SELECT * FROM caixa WHERE user_id = ${user_id} AND status = 'aberto'`;
+    res.json(response);
+  } catch (error) {
+    console.error('Erro ao abrir o caixa:', error);
+    res.status(500).json({ error: 'Erro ao processar a solicitação' });
+  }
+})
+
+router.post('/retirada', authenticateToken, async (req, res) => {
+  const { id, retirada } = req.body;
+
+  try {
+    await conn`UPDATE caixa SET retirada = retirada + ${retirada}, dinheiro = dinheiro - ${retirada} WHERE id = ${id}`;
+    res.status(200).json({ message: 'Retirada feita com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao fazer retirada:', error);
+    res.status(500).json({ error: 'Erro ao processar a solicitação' });
+  }
+})
+
+router.post('/fechamento', authenticateToken, async (req, res) => {
+  const { id, dinheiro_final } = req.body;
+
+  try {
+    await conn`UPDATE caixa SET status = 'fechado', dinheiro_final = ${dinheiro_final}, hora_final = NOW() WHERE id = ${id}`;
+    res.status(200).json({ message: 'Caixa fechado com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao fechar caixa:', error);
     res.status(500).json({ error: 'Erro ao processar a solicitação' });
   }
 })

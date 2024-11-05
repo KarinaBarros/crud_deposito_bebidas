@@ -10,5 +10,14 @@ const conn = postgres({
     idle_timeout: 5000        
 });
 
+(async () => {
+    try {
+        await conn`SET timezone = 'America/Sao_Paulo'`;
+        console.log("Timezone configurado para 'America/Sao_Paulo'");
+    } catch (error) {
+        console.error("Erro ao definir timezone:", error);
+    }
+})();
+
 
 module.exports = conn;
