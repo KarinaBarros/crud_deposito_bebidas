@@ -226,30 +226,20 @@ async function ListarClientes() {
                 }
             })
 
-            let listaNome = document.getElementById('lista-nome');
-            listaNome.innerHTML = '';
             let linhaVazia = document.createElement('option');
             linhaVazia.value = '';
             linhaVazia.textContent = '';
-            listaNome.appendChild(linhaVazia);
 
             let pesquisaCliente = document.getElementById('pesquisa-cliente');
             pesquisaCliente.innerHTML = '';
             pesquisaCliente.appendChild(linhaVazia);
 
             response.data.forEach(function (item) {
-                let linha = document.createElement('option');
-                linha.value = item.id;
-                linha.textContent = item.nome_cliente;
-                listaNome.appendChild(linha);
-
                 let linhaPesquisa = document.createElement('option');
                 linhaPesquisa.value = item.id;
                 linhaPesquisa.textContent = item.nome_cliente;
                 pesquisaCliente.appendChild(linhaPesquisa);
             })
-
-            listaNome.value = '';
             pesquisaCliente.value = '';
         } catch (error) {
             console.error('Erro ao buscar clientes:', error);
@@ -273,75 +263,114 @@ function capturarPreco() {
     vendaValor.value = valor;
 }
 
-//Limpar lista de nomes
-const eventoNome = document.getElementById('venda-nome');
-const eventoLista = document.getElementById('lista-nome');
-eventoNome.addEventListener('input', function() { 
-    eventoLista.value = ''; // Seleciona a opção vazia
-});
+//Função para formatar input de entrada de comanda
+function formatInput(input) {
+    let valor = input.value;
+    valor = valor.replace(/\D/g, '');
+    let novoValor = '';
+    if (valor.length === 1) {
+        novoValor = '000' + valor;
+    }
+    if (valor.length === 5) {
+        novoValor = valor.slice(1);
+    }
+    if (valor.length === 3) {
+        novoValor = '0' + valor;
+    }
+    if (valor.length === 5 && valor[0] !== '0') {
+        novoValor = valor.slice(0, -1);
+    }
+    input.value = novoValor;
+}
+//Funçao para popular lista de itens da venda
+let listaProdutosVenda = [];
+const tbodyVenda = document.getElementById('tbody-vendas');
+
+//Funçao para limpar lista de venda
+function limparVenda() {
+    tbodyVenda.innerHTML = '';
+    listaProdutosVenda = [];
+}
+
+function incluirVendas() {
+    const vendaBebida = document.getElementById('venda-bebida');
+    const vendaQuantidade = document.getElementById('venda-quantidade').value;
+    const vendaValor = document.getElementById('venda-valor').value;
+
+    if (!vendaBebida || !vendaQuantidade) {
+        alert('Escolha a bebida e quantidade.')
+        return
+    }
+    const objeto = {
+        bebida_id: vendaBebida.value,
+        quantidade: vendaQuantidade
+    }
+    listaProdutosVenda.push(objeto);
+
+    let listaVenda = document.createElement('tr');
+
+    let tdbebida = document.createElement('td');
+    tdbebida.textContent = vendaBebida.selectedOptions[0].text;
+    listaVenda.appendChild(tdbebida);
+
+    let tdQuantidade = document.createElement('td');
+    tdQuantidade.textContent = vendaQuantidade;
+    listaVenda.appendChild(tdQuantidade);
+
+    let tdValor = document.createElement('td');
+    tdValor.textContent = vendaValor;
+    listaVenda.appendChild(tdValor);
+
+    console.log(vendaValor);
+    let valor = extrairValor(vendaValor) * vendaQuantidade;
+    valor = valor.toFixed(2);
+    valor = formatDinheiro(valor);
+
+    let tdTotal = document.createElement('td');
+    tdTotal.textContent = valor;
+    listaVenda.appendChild(tdTotal);
+
+    tbodyVenda.appendChild(listaVenda);
+
+    console.log(listaProdutosVenda);
+    document.getElementById('venda-bebida').value = '';
+    document.getElementById('venda-quantidade').value = '';
+    document.getElementById('venda-valor').value = '';
+}
 
 //Funçao para enviar formulário de vendas
 async function submitFormVendas(event) {
     event.preventDefault();
     //user_id, nome_cliente, bebida_id, quantidade
     //vendas_nova_comanda
-
     if (token && id) {
         const vendaNome = document.getElementById('venda-nome').value;
-        const listaNome = document.getElementById('lista-nome').value;
-        const vendaBebida = document.getElementById('venda-bebida').value;
-        const vendaQuantidade = document.getElementById('venda-quantidade').value;
-        if (vendaNome && listaNome) {
-            alert('Escolha somente um dos campos de nomes');
-            return;
+        if (listaProdutosVenda.length === 0) {
+            alert('Inclua itens na lista.');
+            return
         }
-        if (vendaNome || listaNome) {
-            if (vendaNome) {
-                try {
-                    const data = {
-                        user_id: id,
-                        nome_cliente: vendaNome,
-                        bebida_id: vendaBebida,
-                        quantidade: vendaQuantidade
-                    }
-                    const response = await axios.post('/api/vendas_nova_comanda', data, {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    });
-                    alert(response.data.message);
-                    document.getElementById('form-vendas').reset();
 
-                    buscaEstoque();
-                    ListarClientes();
-                    TodosClientes();
-                } catch (error) {
-                    console.error('Erro ao inserir venda de nova comanda:', error);
-                }
-            } else {
-                try {
-                    const data = {
-                        venda_id: listaNome,
-                        bebida_id: vendaBebida,
-                        quantidade: vendaQuantidade
-                    }
-                    const response = await axios.post('/api/venda', data, {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    });
-                    alert(response.data.message);
-                    document.getElementById('venda-bebida').value = '';
-                    document.getElementById('venda-quantidade').value = '';
-                    document.getElementById('venda-valor').value = '';
-                    buscaEstoque();
-                    TodosClientes();
-                } catch (error) {
-                    console.error('Erro ao inserir venda:', error);
-                }
+        try {
+            const data = {
+                user_id: id,
+                nome_cliente: vendaNome,
+                lista: listaProdutosVenda
             }
-        } else {
-            alert('Escolha uma comanda ou adicione um nome pra nova comanda.');
+            const response = await axios.post('/api/vendas', data, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            alert(response.data.message);
+            document.getElementById('form-vendas').reset();
+
+            buscaEstoque();
+            ListarClientes();
+            TodosClientes();
+            tbodyVenda.innerHTML = '';
+            listaProdutosVenda = [];
+        } catch (error) {
+            console.error('Erro ao inserir venda de nova comanda:', error);
         }
     } else {
         window.location.href = '/login';
@@ -411,20 +440,49 @@ function excluirDadosPagto() {
     document.getElementById('pesquisa-cliente').value = '';
 }
 
+function ConlcuirPagamento() {
+    const inputTroco = document.getElementById('input-troco').value;
+    if (!inputTroco) {
+        alert('Preencha o valor do dinheiro.')
+    } else {
+        let valor = extrairValor(inputTroco);
+        const InputTotal = document.getElementById('total-pagto').value;
+        let total = extrairValor(InputTotal);
+        let valorTroco = valor - total;
+        valorTroco = total.toFixed(2);
+        valorTroco = formatDinheiro(valorTroco);
+        alert(`Troco: ${valorTroco}`);
+    }
+}
+
 //função para efetuar pagamento
 async function EfetuarPagto(tipoPagto) {
     const pesquisaCliente = document.getElementById('pesquisa-cliente').value;
     const listaProdutos = document.getElementById('tbody-pagto');
+    const inputTroco = document.getElementById('input-troco').value;
+
     if (!token && id) {
         window.location.href = '/login';
     }
-    if (statusCaixa  === 'fechado'){
+    if (statusCaixa === 'fechado') {
         alert('Abra um caixa para confirmar o pagamento');
         return;
     }
     if (listaProdutos.rows.length > 0) {
         const confirm = window.confirm(`Deseja concluir pagamento com ${tipoPagto}`);
         if (confirm) {
+            if (tipoPagto === 'dinheiro' && !inputTroco) {
+                alert('Preencha o valor do dinheiro');
+                return
+            } else if (tipoPagto === 'dinheiro' && inputTroco) {
+                let valor = extrairValor(inputTroco);
+                const InputTotal = document.getElementById('total-pagto').value;
+                let total = extrairValor(InputTotal);
+                let valorTroco = valor - total;
+                valorTroco = total.toFixed(2);
+                valorTroco = formatDinheiro(valorTroco);
+                alert(`Troco: ${valorTroco}`);
+            }
             try {
                 const data = {
                     id: pesquisaCliente,
@@ -625,11 +683,11 @@ async function fazerRetirada(event) {
     }
     const dinheiroRetirada = document.getElementById('dinheiro-retirada').value;
     const data = {
-        id : idCaixa,
-        retirada : extrairValor(dinheiroRetirada)
+        id: idCaixa,
+        retirada: extrairValor(dinheiroRetirada)
     };
     const confirm = window.confirm(`Confirma retirada de ${dinheiroRetirada}`);
-    if(confirm){
+    if (confirm) {
         try {
             const response = await axios.post('/api/retirada', data, {
                 headers: {
@@ -646,6 +704,7 @@ async function fazerRetirada(event) {
 
 }
 
+//Função para fechar caixa
 async function Fechamento(event) {
     event.preventDefault();
     if (!token) {
@@ -653,11 +712,11 @@ async function Fechamento(event) {
     }
     const dinheiroFechamento = document.getElementById('dinheiro-fechamento').value;
     const data = {
-        id : idCaixa,
-        dinheiro_final : extrairValor(dinheiroFechamento)
+        id: idCaixa,
+        dinheiro_final: extrairValor(dinheiroFechamento)
     };
     const confirm = window.confirm('Confirma fechamento de caixa?');
-    if(confirm){
+    if (confirm) {
         try {
             const response = await axios.post('/api/fechamento', data, {
                 headers: {
@@ -794,6 +853,8 @@ function vendasBebidas() {
     }
     botaoVBebidas.style.color = 'var(--color-highlight)';
     botaoVBebidas.style.borderBottom = '2px solid var(--color-highlight)';
+    tbodyVenda.innerHTML = '';
+    listaProdutosVenda = [];
 
     closeNav2();
 }

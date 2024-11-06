@@ -111,39 +111,38 @@ router.post('/clientes-pendente', authenticateToken, async (req, res) => {
   }
 })
 
-router.post('/vendas_nova_comanda', authenticateToken, async (req, res) => {
-  const { user_id, nome_cliente, bebida_id, quantidade } = req.body;
-
+router.post('/vendas', authenticateToken, async (req, res) => {
+  const { user_id, nome_cliente, lista } = req.body;
+  console.log(lista);
+  
   try {
-    const nomeExistente = await conn`SELECT * FROM vendas WHERE nome_cliente = ${nome_cliente} AND status = 'pendente'`;
-    if (nomeExistente.length > 0) {
-      res.status(200).json({ message: 'Essa comanda já existe!' });
-    } else {
-      const response = await conn`INSERT INTO vendas (user_id, nome_cliente) VALUES (${user_id}, ${nome_cliente}) RETURNING id`;
-      console.log("Response:", JSON.stringify(response));
-      const venda_id = response[0].id;
-      console.log('id:', venda_id);
-      await conn`INSERT INTO vendas_bebidas (venda_id, bebida_id, quantidade) VALUES (${venda_id}, ${bebida_id}, ${quantidade})`;
-      await conn`UPDATE bebidas SET total_unidades = total_unidades - ${quantidade} WHERE id = ${bebida_id}`;
-      res.status(200).json({ message: 'Venda inserida!' });
+    for (let item of lista) {
+      const bebida_id = item.bebida_id;
+      const quantidade = item.quantidade;
+      
+      const nomeExistente = await conn`SELECT * FROM vendas WHERE nome_cliente = ${nome_cliente} AND status = 'pendente'`;
+  
+      if (nomeExistente.length > 0) {
+        const venda_id = nomeExistente[0].id;
+        await conn`INSERT INTO vendas_bebidas (venda_id, bebida_id, quantidade) VALUES (${venda_id}, ${bebida_id}, ${quantidade})`;
+        await conn`UPDATE bebidas SET total_unidades = total_unidades - ${quantidade} WHERE id = ${bebida_id}`;
+      } else {
+        const response = await conn`INSERT INTO vendas (user_id, nome_cliente) VALUES (${user_id}, ${nome_cliente}) RETURNING id`;
+        console.log("Response:", JSON.stringify(response));
+        const venda_id = response[0].id;
+        console.log('id:', venda_id);
+        await conn`INSERT INTO vendas_bebidas (venda_id, bebida_id, quantidade) VALUES (${venda_id}, ${bebida_id}, ${quantidade})`;
+        await conn`UPDATE bebidas SET total_unidades = total_unidades - ${quantidade} WHERE id = ${bebida_id}`;
+      }
     }
+    
+    res.status(200).json({ message: 'Venda concluída!' });
   } catch (error) {
     console.error('Erro ao inserir venda:', error);
     res.status(500).json({ error: 'Erro ao processar a solicitação' });
   }
-})
+});
 
-router.post('/venda', authenticateToken, async (req, res) => {
-  const { venda_id, bebida_id, quantidade } = req.body;
-  try {
-    await conn`INSERT INTO vendas_bebidas (venda_id, bebida_id, quantidade) VALUES (${venda_id}, ${bebida_id}, ${quantidade})`;
-    await conn`UPDATE bebidas SET total_unidades = total_unidades - ${quantidade} WHERE id = ${bebida_id}`;
-    res.status(200).json({ message: 'Venda inserida!' });
-  } catch (error) {
-    console.error('Erro ao inserir venda:', error);
-    res.status(500).json({ error: 'Erro ao processar a solicitação' });
-  }
-})
 
 router.post('/busca_cliente', authenticateToken, async (req, res) => {
   const { venda_id } = req.body;

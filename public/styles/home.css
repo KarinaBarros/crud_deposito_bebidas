@@ -38,6 +38,24 @@ main{
     height: 380px;
     overflow: auto;
 }
+
+.overflow-vendas{
+    height: 200px !important;
+    overflow: auto;
+}
+
+.overflow-vendas table{
+    height: auto !important;
+}
+
+.overflow-vendas td{
+height: auto !important;
+}
+.overflow-vendas tr{
+    line-height: 20px !important;
+    
+}
+
 table {
     width: 100%;
     height: 300px;
@@ -313,6 +331,8 @@ input, select{
     padding-left: 40px;
     line-height: 1.5;
 }
+
+
 
 
 @media screen and (max-width: 1024px) {

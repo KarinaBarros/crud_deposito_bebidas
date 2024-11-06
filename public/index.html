@@ -92,28 +92,38 @@
         <div id="container-vendas">
             <button class="fechar" onclick="Close()">x</button>
             <h2><i class="fas fa-shopping-cart"></i> Vendas de bebidas</h2>
-            <form action="" method="post" id="form-vendas" class="formulario" onsubmit="return submitFormVendas(event)">
+            <form action="" method="post" id="form-vendas" onsubmit="return submitFormVendas(event)">
 
-                <label for="venda-nome" class="label-form">Nome do cliente para nova comanda:</label>
-                <input type="text" id="venda-nome" name="venda-nome" class="input-form" autocomplete="off">
-
-                <label for="lista-nome" class="label-form">Comandas abertas:</label>
-                <select id="lista-nome">
+                <label for="venda-nome" class="label-form">Número da comanda:</label>
+                <input type="text" id="venda-nome" name="venda-nome" class="input-form" autocomplete="off" maxlength="5" oninput="formatInput(this)" required>
 
                 </select>
-
-                <label for="venda-bebida" class="label-form">Nome da bebida:</label>
-                <select id="venda-bebida" name="venda-bebida" class="input-form" onchange="capturarPreco()" required>
+                <br/>
+                <label for="venda-bebida" class="label-form">Bebida:</label><br/>
+                <select id="venda-bebida" name="venda-bebida" class="input-form" onchange="capturarPreco()">
 
                     <!--iterar sobre as bebidas cadastradas para popular o select-->
                 </select>
+                <input type="number" min="0" id="venda-quantidade" name="venda-quantidade" class="input-form" placeholder="quantidade">
 
-                <label for="venda-quantidade" class="label-form">Quantidade:</label>
-                <input type="number" min="0" id="venda-quantidade" name="venda-quantidade" class="input-form" required>
-
-                <label for="venda-valor" class="label-form">Valor de venda por unidade:</label>
                 <input type="text" id="venda-valor" name="venda-valor" class="input-form"
                     oninput="formatarDinheiro(this)" disabled>
+                    <button type="button" class="botao" onclick="incluirVendas()">Incluir</button>
+                    <div class="overflow-vendas">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bebida</th>
+                                <th>Quantidade</th>
+                                <th>Valor</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-vendas">
+                            
+                        </tbody>
+                    </table>
+                </div>
                 <br /><br /><br />
 
                 <div class="botoes">
@@ -215,6 +225,12 @@
                     <button type="button" class="botao" id="cdinheiro"
                         onclick="EfetuarPagto('dinheiro')">Dinheiro</button>
                     <button type="button" class="botao" onclick="excluirDadosPagto()">Cancelar</button>
+                </div>
+                <br/>
+                <div id="troco">
+                    <label for="input-troco" class="label-form">Dinheiro:</label>
+                    <input id="input-troco"  oninput="formatarDinheiro(this)" class="input-form">
+                    
                 </div>
             </form>
         </div>
