@@ -469,17 +469,22 @@ async function EfetuarPagto(tipoPagto) {
         return;
     }
     if (listaProdutos.rows.length > 0) {
+        const InputTotal = document.getElementById('total-pagto').value;
+        let valor = extrairValor(inputTroco);
+        let total = extrairValor(InputTotal);
+        if (tipoPagto === 'dinheiro' && !inputTroco) {
+            alert('Preencha o valor do dinheiro');
+            return
+        }
+        if(valor<total){
+            alert('Insira um valor maior ou igual');
+            return
+        }
         const confirm = window.confirm(`Deseja concluir pagamento com ${tipoPagto}`);
         if (confirm) {
-            if (tipoPagto === 'dinheiro' && !inputTroco) {
-                alert('Preencha o valor do dinheiro');
-                return
-            } else if (tipoPagto === 'dinheiro' && inputTroco) {
-                let valor = extrairValor(inputTroco);
-                const InputTotal = document.getElementById('total-pagto').value;
-                let total = extrairValor(InputTotal);
-                let valorTroco = valor - total;
-                valorTroco = total.toFixed(2);
+            if (tipoPagto === 'dinheiro' && inputTroco) {
+                
+                let valorTroco = (valor - total).toFixed(2);
                 valorTroco = formatDinheiro(valorTroco);
                 alert(`Troco: ${valorTroco}`);
             }
@@ -498,6 +503,7 @@ async function EfetuarPagto(tipoPagto) {
                 excluirDadosPagto();
                 TodosClientes();
                 CaixaAberto();
+                document.getElementById('input-troco').value = '';
             } catch (error) {
                 console.error('Erro ao confirmar pagamento:', error);
             }
