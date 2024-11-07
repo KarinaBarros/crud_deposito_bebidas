@@ -1,5 +1,7 @@
 const token = localStorage.getItem('token');
 const id = localStorage.getItem('id');
+const IdCaixa = localStorage.getItem('idCaixa');
+let idCaixa = IdCaixa;
 //Função para verificar rota protegida
 async function verificarToken() {
     if (token) {
@@ -182,6 +184,8 @@ async function submitFormAlterar(event) {
             alert(response.data.message);
             buscaEstoque();
             document.getElementById("form-cadastro-alterar").reset();
+            document.getElementById('container-alterar-estoque').style.display = 'none';
+            document.getElementById('container-estoque-principal').style.display = 'block';
         } catch (error) {
             console.error('Erro ao enviar os dados:', error);
             alert(error.message);
@@ -464,7 +468,7 @@ async function EfetuarPagto(tipoPagto) {
     if (!token && id) {
         window.location.href = '/login';
     }
-    if (statusCaixa === 'fechado') {
+    if (!IdCaixa) {
         alert('Abra um caixa para confirmar o pagamento');
         return;
     }
@@ -476,14 +480,14 @@ async function EfetuarPagto(tipoPagto) {
             alert('Preencha o valor do dinheiro');
             return
         }
-        if(valor<total){
+        if (valor < total) {
             alert('Insira um valor maior ou igual');
             return
         }
         const confirm = window.confirm(`Deseja concluir pagamento com ${tipoPagto}`);
         if (confirm) {
             if (tipoPagto === 'dinheiro' && inputTroco) {
-                
+
                 let valorTroco = (valor - total).toFixed(2);
                 valorTroco = formatDinheiro(valorTroco);
                 alert(`Troco: ${valorTroco}`);
@@ -582,7 +586,6 @@ searchInputClientes.addEventListener("input", function () {
         }
     }
 });
-let statusCaixa;
 
 //definir status do caixa
 async function StatusCaixa() {
@@ -591,57 +594,17 @@ async function StatusCaixa() {
     }
     const caixaFechado = document.getElementById('caixa-fechado');
     const caixaAberto = document.getElementById('caixa-aberto');
-    try {
-        const response = await axios.post('/api/status-caixa', { user_id: id }, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-        if (response.data.message === 'fechado') {
+        if (!IdCaixa) {
             caixaFechado.style.display = 'block';
+            caixaAberto.style.display = 'none';
         } else {
             caixaAberto.style.display = 'block';
+            caixaFechado.style.display = 'none';
             CaixaAberto();
         }
-        statusCaixa = response.data.message;
-    } catch (error) {
-        console.error('Erro ao bucar status do caixa:', error);
-    }
 }
 StatusCaixa();
 
-//abrir o caixa
-async function AbrirCaixa(event) {
-    event.preventDefault();
-    const nomeOperador = document.getElementById('nome-operador').value;
-    const dinheiroInicial = document.getElementById('dinheiro-inicial').value;
-    const dinheiroFormatado = extrairValor(dinheiroInicial);
-    const caixaFechado = document.getElementById('caixa-fechado');
-    const caixaAberto = document.getElementById('caixa-aberto');
-    if (!token && id) {
-        window.location.href = '/login';
-    }
-    const data = {
-        user_id: id,
-        nome_operador: nomeOperador,
-        dinheiro: dinheiroFormatado
-    }
-    try {
-        const response = await axios.post('/api/abrir-caixa', data, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-        statusCaixa = 'aberto';
-        alert(response.data.message);
-        CaixaAberto();
-        caixaFechado.style.display = 'none';
-        caixaAberto.style.display = 'block';
-    } catch (error) {
-        console.error('Erro ao abrir caixa:', error);
-        alert('Erro ao abrir o caixa.');
-    }
-}
 
 function formatDinheiro(valorInicial) {
     let valor = valorInicial.replace(/\D/g, '');
@@ -650,7 +613,6 @@ function formatDinheiro(valorInicial) {
 }
 
 //Dados do caixa
-let idCaixa;
 async function CaixaAberto() {
     if (!token && id) {
         window.location.href = '/login';
@@ -663,7 +625,7 @@ async function CaixaAberto() {
     const creditoCaixa = document.getElementById('credito-caixa');
 
     try {
-        const response = await axios.post('/api/caixa-aberto', { user_id: id }, {
+        const response = await axios.post('/api/caixa-aberto', { id: idCaixa }, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -709,37 +671,182 @@ async function fazerRetirada(event) {
     }
 
 }
-
-//Função para fechar caixa
-async function Fechamento(event) {
+//Função para abrir a senha
+function AbrirSenha(event) {
     event.preventDefault();
-    if (!token) {
+    document.getElementById('div-senha').style.display = 'block';
+    document.body.classList.add('bloqueado');
+}
+function FecharSenha() {
+    document.getElementById('div-senha').style.display = 'none';
+    document.getElementById('form-fechamento').reset();
+    document.body.classList.remove('bloqueado');
+}
+
+//Função para fechar ou abrir caixa
+async function abrirFecharCaixa(event) {
+    event.preventDefault();
+    const caixaAberto = window.getComputedStyle(document.getElementById('caixa-aberto')).display;
+    const caixaFechado = window.getComputedStyle(document.getElementById('caixa-fechado')).display;
+
+    if (!token && id) {
         window.location.href = '/login';
     }
-    const dinheiroFechamento = document.getElementById('dinheiro-fechamento').value;
-    const data = {
-        id: idCaixa,
-        dinheiro_final: extrairValor(dinheiroFechamento)
-    };
-    const confirm = window.confirm('Confirma fechamento de caixa?');
-    if (confirm) {
+
+    if (caixaAberto === 'block') {
+        const dinheiroFechamento = document.getElementById('dinheiro-fechamento').value;
+        const senha = document.getElementById('senha-caixa').value;
+        const data = {
+            user_id: id,
+            id: idCaixa,
+            dinheiro_final: extrairValor(dinheiroFechamento),
+            senha: senha
+        };
+        const confirm = window.confirm('Confirma fechamento de caixa?');
+        if (confirm) {
+            try {
+                const response = await axios.post('/api/fechamento', data, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+                alert(response.data.message);
+                document.getElementById('caixa-fechado').style.display = 'block';
+                document.getElementById('caixa-aberto').style.display = 'none';
+                document.getElementById('form-senha').reset();
+                document.getElementById('form-fechamento').reset();
+                document.getElementById('div-senha').style.display = 'none';
+                document.body.classList.remove('bloqueado');
+                localStorage.removeItem('idCaixa');
+                idCaixa = '';
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                    alert('Você não tem permissão para acessar este recurso. Verifique suas credenciais.');
+                }else{
+                    console.error('Erro ao fechar caixa:', error);
+                    document.getElementById('form-fechamento').reset();
+                    alert('Erro ao fechar caixa!');
+                }
+
+            }
+        }
+    }
+
+    if (caixaFechado === 'block') {
+        const nomeOperador = document.getElementById('nome-operador').value;
+        const dinheiroInicial = document.getElementById('dinheiro-inicial').value;
+        const dinheiroFormatado = extrairValor(dinheiroInicial);
+        const senha = document.getElementById('senha-caixa').value;
+        const data = {
+            user_id: id,
+            nome_operador: nomeOperador,
+            dinheiro: dinheiroFormatado,
+            senha : senha
+        }
         try {
-            const response = await axios.post('/api/fechamento', data, {
+            const response = await axios.post('/api/abrir-caixa', data, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
+            
+            localStorage.setItem ('idCaixa', response.data.id);
+            idCaixa = (response.data.id);
+            console.log('resposta',response.data.id);
+            CaixaAberto();
+            
+            
             alert(response.data.message);
-            statusCaixa = 'fechado';
-            const caixaAberto = document.getElementById('caixa-aberto');
-            caixaAberto.style.display = 'none';
-            StatusCaixa();
+            document.getElementById('caixa-fechado').style.display = 'none';
+            document.getElementById('caixa-aberto').style.display = 'block';
+            document.getElementById('form-senha').reset();
+            document.getElementById('form-fechamento').reset();
+            document.getElementById('div-senha').style.display = 'none';
+            document.body.classList.remove('bloqueado');
         } catch (error) {
-            console.error('Erro ao fechar caixa:', error);
-            alert('Erro ao fechar caixa!');
+            if (error.response && error.response.status === 401) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                alert('Você não tem permissão para acessar este recurso. Verifique suas credenciais.');
+            }else{
+                console.error('Erro ao abrir caixa:', error);
+                alert('Erro ao abrir o caixa.');
+            }
         }
     }
 
+}
+
+async function caixasAbertos(){
+    document.getElementById('div-caixas').style.display = 'block';
+    document.body.classList.add('bloqueado');
+    const tBody = document.getElementById('caixas-abertos');
+    tBody.innerHTML = '';
+    if (!token && id) {
+        window.location.href = '/login';
+    }
+    try{
+        const response = await axios.post('/api/caixas-abertos', {user_id:id}, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        console.log(response.data);
+
+        response.data.forEach((item) => {
+            const div = document.createElement('tr');
+            
+            const tdNome = document.createElement('td');
+            tdNome.textContent = item.nome_operador;
+            div.appendChild(tdNome);
+
+            const tdHora = document.createElement('td');
+            tdHora.textContent = formatarData(item.hora_inicial);;
+            div.appendChild(tdHora);
+
+            const tdBotao = document.createElement('td');
+            const botao = document.createElement('button');
+            botao.innerHTML = `<i class="fas fa-check"></i>`;
+            botao.onclick = () => escolherCaixa(item.id);
+            botao.classList.add('btn-caixas');
+            tdBotao.appendChild(botao);
+            div.appendChild(tdBotao);
+
+            tBody.appendChild(div);
+        })
+    } catch (error) {
+        console.error('Erro ao buscar caixas:', error);
+    }
+
+}
+
+function FecharCaixas(){
+    document.getElementById('div-caixas').style.display = 'none';
+    document.body.classList.remove('bloqueado');
+}
+
+async function escolherCaixa(valor){
+    console.log('Id caixa:', valor);
+    localStorage.setItem('idCaixa', valor);
+    idCaixa = valor;
+    document.getElementById('div-caixas').style.display = 'none';
+    document.body.classList.remove('bloqueado');
+    CaixaAberto();
+    document.getElementById('caixa-fechado').style.display = 'none';
+    document.getElementById('caixa-aberto').style.display = 'block';
+}
+
+function formatarData(valor){
+    const data = new Date(valor);
+    const dataFormatada = data.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+    return(dataFormatada)
 }
 
 

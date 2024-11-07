@@ -1,4 +1,4 @@
-body{
+body {
     margin: 0;
     padding: 0;
     display: flex;
@@ -6,68 +6,77 @@ body{
     overflow: hidden;
 }
 
-.navigation{
+body.bloqueado {
+    pointer-events: none; /* Bloqueia interações no restante da página */
+}
+
+.navigation {
     width: 30%;
 }
 
-main{
+main {
     width: 70%;
     height: 100vh;
     display: flex;
     flex-direction: column;
-    
+
 }
 
-.formulario{
+.formulario {
     display: flex;
     flex-direction: column;
 }
 
-.botoes{
+.botoes {
     display: flex;
     flex-direction: row;
     margin: auto;
 }
 
-.overflow-pagto{
+.overflow-pagto {
     height: 250px;
     overflow: auto;
 }
 
-.overflow{
+.overflow {
     height: 380px;
-    overflow: auto;
+    overflow: auto; 
 }
 
-.overflow-vendas{
+.overflow-vendas {
     height: 200px !important;
     overflow: auto;
 }
 
-.overflow-vendas table{
+.overflow-vendas table {
     height: auto !important;
 }
 
-.overflow-vendas td{
-height: auto !important;
+.overflow-vendas td,
+td {
+    height: auto !important;
 }
-.overflow-vendas tr{
+
+.overflow-vendas tr,
+tr {
     line-height: 20px !important;
-    
+
 }
 
 table {
     width: 100%;
     height: 300px;
+    height: auto !important;
 }
 
-#tabela-vendas{
+#tabela-vendas {
     height: 250px;
     overflow: auto;
     table-layout: fixed;
 }
 
-th, td {
+th,
+td {
     border: 1px solid black;
     padding: 8px;
     text-align: left;
@@ -78,19 +87,27 @@ th, td {
     font-size: 16px;
 }
 
-.nav-home{
+.nav-home {
     display: flex;
     flex-direction: column;
-    padding: 0 20px ;
+    padding: 0 20px;
     background-color: var(--background-login);
     height: 100vh;
 }
 
-i{
+i {
     margin-right: 20px;
 }
 
-#c-bebidas, #v-bebidas, #pagto, #pagto-p , #pagto-e, #busca-c, #todas-v, #estoque-b{
+#c-bebidas,
+#v-bebidas,
+#pagto,
+#pagto-p,
+#pagto-e,
+#busca-c,
+#todas-v,
+#estoque-b,
+#relatorio {
     padding: 20px;
     font-family: var(--font);
     font-size: 20px;
@@ -101,13 +118,28 @@ i{
     border-bottom: 2px solid var(--color-text);
 }
 
-#c-bebidas:hover, #v-bebidas:hover, #pagto:hover, #pagto-p:hover, #pagto-e:hover, #busca-c:hover, #todas-v:hover, #estoque-b:hover{
+#c-bebidas:hover,
+#v-bebidas:hover,
+#pagto:hover,
+#pagto-p:hover,
+#pagto-e:hover,
+#busca-c:hover,
+#todas-v:hover,
+#estoque-b:hover,
+#relatorio:hover {
     color: var(--color-highlight);
     border-bottom: 2px solid var(--color-highlight);
     cursor: pointer;
 }
 
-#container-cadastro, #container-vendas, #container-estoque, #container-pagamento, #container-pendente, #container-efetuado, #container-busca, #container-tvendas{
+#container-cadastro,
+#container-vendas,
+#container-estoque,
+#container-pagamento,
+#container-pendente,
+#container-efetuado,
+#container-busca,
+#container-tvendas {
     display: none;
     position: absolute;
     top: 0;
@@ -119,7 +151,7 @@ i{
 
 }
 
-.name-logout{
+.name-logout {
     display: flex;
     flex-direction: row;
     position: absolute;
@@ -130,26 +162,26 @@ i{
     margin: 5px;
 }
 
-#nome-login{
+#nome-login {
     font-family: var(--font);
     font-size: 20px;
     font-weight: 600;
     margin-right: 20px;
 }
 
-.container-right{
+.container-right {
     height: 100vh;
 }
 
 
 
-.img-principal{
+.img-principal {
     width: 100%;
     height: 100%;
     position: relative;
 }
 
-.texto-principal{
+.texto-principal {
     position: absolute;
     margin: 140px 50px 0;
     top: 0;
@@ -159,10 +191,10 @@ i{
     flex-direction: column;
     padding: 0 20px 20px;
     box-shadow: 2px 2px 4px var(--color-text);
-   
+
 }
 
-.titulo{
+.titulo {
     color: var(--color-highlight);
     font-family: var(--font);
     font-size: 40px;
@@ -175,12 +207,12 @@ i{
     margin: 50px 75px;
 }
 
-.logo2{
+.logo2 {
     width: 80px;
     margin: -40px auto 20px;
 }
 
-.paragrafo{
+.paragrafo {
     color: var(--background-login);
     font-family: var(--font2);
     font-size: 20px;
@@ -189,10 +221,10 @@ i{
     text-indent: 30px;
     text-align: justify;
     line-height: 1.5;
-    
+
 }
 
-.botao{
+.botao {
     background-color: var(--background-login);
     color: var(--color-text);
     margin-right: 20px;
@@ -202,18 +234,18 @@ i{
     border-radius: 20px;
 }
 
-.botao:hover{
+.botao:hover {
     border: 2px solid var(--color-highlight);
     cursor: pointer;
 }
 
-.fechar{
+.fechar {
     margin-left: 97%;
     background-color: var(--background-login);
     color: var(--color-text);
 }
 
-h2{
+h2 {
     text-align: center;
     margin-bottom: 20px;
     font-family: var(--font);
@@ -222,13 +254,14 @@ h2{
     color: var(--color-highlight);
 }
 
-label{
+label {
     font-family: var(--font);
     font-size: 18px;
     margin-bottom: 5px;
 }
 
-input, select{
+input,
+select {
     font-family: var(--font2);
     font-size: 16px;
     padding: 5px;
@@ -237,21 +270,21 @@ input, select{
     flex: 1;
 }
 
-.busca{
+.busca {
     display: flex;
     width: 50%;
 }
 
-.busca-pagto{
+.busca-pagto {
     display: flex;
     width: 80%;
 }
 
-.busca-pagto select{
+.busca-pagto select {
     height: 30px;
 }
 
-.buscar{
+.buscar {
     height: 30px;
     background-color: var(--color-text);
     font-size: 20px;
@@ -260,7 +293,9 @@ input, select{
     border: 1px solid black;
 }
 
-#busca-clientes, #pesquisa-cliente, #pesquisa-estoque{
+#busca-clientes,
+#pesquisa-cliente,
+#pesquisa-estoque {
     border-top-left-radius: 15px;
     border-bottom-left-radius: 15px;
     border-right: none;
@@ -268,23 +303,25 @@ input, select{
     padding-left: 20px;
 }
 
-#busca-clientes:focus, #pesquisa-cliente:focus {
-    outline: none; 
+#busca-clientes:focus,
+#pesquisa-cliente:focus {
+    outline: none;
     border: 1px solid black;
 }
 
-#total-pagto{
+#total-pagto {
     width: 30%;
     margin-left: 68%;
 }
 
-.label-total{
+.label-total {
     width: 30%;
     margin-left: 68%;
     margin-top: 20px;
 }
 
-#hamburger-menu, #close-menu{
+#hamburger-menu,
+#close-menu {
     display: none;
     position: absolute;
     top: 0;
@@ -295,28 +332,29 @@ input, select{
     color: var(--color-text);
 }
 
-.btn-alterar-estoque{
+.btn-alterar-estoque {
     background: none;
     border: none;
     outline: none;
     cursor: pointer;
 }
-.btn-alterar-estoque i{
+
+.btn-alterar-estoque i {
     color: red;
     font-size: 20px;
 }
 
-#container-alterar-estoque{
+#container-alterar-estoque {
     display: none;
 }
 
-#nome-produto{
+#nome-produto {
     margin-bottom: 20px;
     font-family: var(--font2);
     font-size: 16px;
 }
 
-#caixa-fechado{
+#caixa-fechado {
     display: none;
     text-align: center;
     font-family: var(--font2);
@@ -324,7 +362,7 @@ input, select{
     line-height: 2;
 }
 
-#caixa-aberto{
+#caixa-aberto {
     display: none;
     font-family: var(--font2);
     font-size: 20px;
@@ -332,56 +370,183 @@ input, select{
     line-height: 1.5;
 }
 
+#troco {
 
+    text-align: end;
 
+}
+
+#input-troco {
+    width: 30%;
+    margin-left: 68%;
+}
+
+#div-senha {
+    z-index: 20;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: black;
+    border-radius: 20px;
+    width: 350px;
+    height: 150px;
+    display: none;
+    pointer-events: auto;
+}
+
+.button-senha{
+    font-family: var(--font);
+    font-size: 23px;
+    position: absolute;
+    top: 60px;
+    cursor: pointer;
+    border-radius: 0 10px 10px 0;
+    padding-bottom: 3px;
+    padding-right: 10px;
+}
+
+#senha-caixa{
+    margin-top: 60px;
+    margin-left: 50px;
+    font-size: 20px;
+    width: 180px;
+    border-radius: 10px 0 0 10px;
+    padding-left: 20px;
+}
+
+.button-fechar{
+    position: absolute;
+    color: white;
+    background-color: black;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    font-size: 25px;
+}
+
+#div-caixas{
+    z-index: 10;
+    position: absolute;
+    background-color: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 70%;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    display: none;
+    pointer-events: auto;
+    border: 2px solid black;
+}
+
+#div-caixas p{
+    font-family: var(--font);
+    font-size: 23px;
+    color: red;
+    margin-bottom: 30px;
+}
+
+#div-caixas table{
+    overflow: auto;
+}
+
+.btn-caixas{
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: green;
+}
+
+.btn-fechar-caixas{
+    position: absolute;
+    color: black;
+    background-color: white;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    font-size: 25px;
+}
 
 @media screen and (max-width: 1024px) {
-    body{
+    body {
         flex-direction: column;
     }
 
-    #close-menu{
+    #close-menu {
         display: none;
     }
 
     #hamburger-menu {
         display: block;
     }
-    .navigation{
+
+    .navigation {
         position: absolute;
         width: 100%;
         z-index: 5;
     }
+
     .nav-home {
         display: none;
         padding-top: 30px;
         padding-bottom: 0;
     }
-    main{
+
+    main {
         width: 100%;
     }
-    .name-logout{
+
+    .name-logout {
         margin: 10px;
     }
-    .texto-principal{
+
+    .texto-principal {
         margin-left: 20px;
     }
-    .titulo{
+
+    .titulo {
         margin-left: 40px;
     }
-    #c-bebidas, #v-bebidas, #pagto, #pagto-p , #pagto-e, #busca-c, #todas-v, #estoque-b{
+
+    #c-bebidas,
+    #v-bebidas,
+    #pagto,
+    #pagto-p,
+    #pagto-e,
+    #busca-c,
+    #todas-v,
+    #estoque-b,
+    #relatorio {
         width: 100%;
         font-size: 16px;
     }
-    #container-cadastro, #container-vendas, #container-estoque, #container-pagamento, #container-pendente, #container-efetuado, #container-busca, #container-tvendas{
+
+    #container-cadastro,
+    #container-vendas,
+    #container-estoque,
+    #container-pagamento,
+    #container-pendente,
+    #container-efetuado,
+    #container-busca,
+    #container-tvendas {
         width: 80%;
         margin: 50px 5%;
     }
 
-    th, td{
+    th,
+    td {
         font-size: 14px;
     }
-    .botao{
+
+    .botao {
         font-size: 14px;
         margin-right: 5px;
         padding: 5px 10px;

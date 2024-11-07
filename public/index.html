@@ -24,11 +24,36 @@
                 Busca de Clientes</button>
             <button id="todas-v" onclick="TVendas()"><i class="fas fa-chart-line"></i>Controle de caixa</button>
             <button id="estoque-b" onclick="Estoque()"><i class="fas fa-warehouse"></i>Estoque</button>
+            <button id="relatorio"><i class="fas fa-file-alt"></i>Relatório</button>
         </nav>
         <button id="hamburger-menu" onclick="toggleNav()">&#9776;</button>
         <button id="close-menu" onclick="closeNav()">x</button>
     </div>
+
     <main>
+        <div id="div-senha">
+            <form id="form-fechamento" onsubmit="return abrirFecharCaixa(event)">
+                <input type="password" id="senha-caixa" class="input-form" placeholder="senha" required>
+                <button type="submit" class="button-senha">Ok</button>
+                <button type="button" class="button-fechar" onclick="FecharSenha()">x</button>
+            </form>
+        </div>
+        <div id="div-caixas">
+            <p>Caixas abertos:</p>
+            <button class="btn-fechar-caixas" onclick="FecharCaixas()">x</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome operador</th>
+                        <th>Hora inicial</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="caixas-abertos">
+
+                </tbody>
+            </table>
+        </div>
         <div class="container-right">
             <img src="./imagens/alcohol-1961542_1280.jpg" alt="bebidas" class="img-principal">
             <div class="name-logout">
@@ -95,21 +120,23 @@
             <form action="" method="post" id="form-vendas" onsubmit="return submitFormVendas(event)">
 
                 <label for="venda-nome" class="label-form">Número da comanda:</label>
-                <input type="text" id="venda-nome" name="venda-nome" class="input-form" autocomplete="off" maxlength="5" oninput="formatInput(this)" required>
+                <input type="text" id="venda-nome" name="venda-nome" class="input-form" autocomplete="off" maxlength="5"
+                    oninput="formatInput(this)" required>
 
                 </select>
-                <br/>
-                <label for="venda-bebida" class="label-form">Bebida:</label><br/>
+                <br />
+                <label for="venda-bebida" class="label-form">Bebida:</label><br />
                 <select id="venda-bebida" name="venda-bebida" class="input-form" onchange="capturarPreco()">
 
                     <!--iterar sobre as bebidas cadastradas para popular o select-->
                 </select>
-                <input type="number" min="0" id="venda-quantidade" name="venda-quantidade" class="input-form" placeholder="quantidade">
+                <input type="number" min="0" id="venda-quantidade" name="venda-quantidade" class="input-form"
+                    placeholder="quantidade">
 
                 <input type="text" id="venda-valor" name="venda-valor" class="input-form"
                     oninput="formatarDinheiro(this)" disabled>
-                    <button type="button" class="botao" onclick="incluirVendas()">Incluir</button>
-                    <div class="overflow-vendas">
+                <button type="button" class="botao" onclick="incluirVendas()">Incluir</button>
+                <div class="overflow-vendas">
                     <table>
                         <thead>
                             <tr>
@@ -120,7 +147,7 @@
                             </tr>
                         </thead>
                         <tbody id="tbody-vendas">
-                            
+
                         </tbody>
                     </table>
                 </div>
@@ -213,11 +240,15 @@
                 </table>
             </div>
             <form action="" method="post" class="formulario">
-                <label for="total-pagto" class="label-form, label-total">Total:</label>
-                <input type="text" id="total-pagto" class="input-form" oninput="formatarDinheiro(this)" readonly>
+
+                <input type="text" id="total-pagto" class="input-form" oninput="formatarDinheiro(this)" readonly
+                    placeholder="Total">
+                <div id="troco">
+
+                    <input id="input-troco" oninput="formatarDinheiro(this)" class="input-form" placeholder="Dinheiro">
+                </div>
                 <div class="botoes">
-                    <button type="button" class="botao" id="pix" 
-                        onclick="EfetuarPagto('pix')">Pix</button>
+                    <button type="button" class="botao" id="pix" onclick="EfetuarPagto('pix')">Pix</button>
                     <button type="button" class="botao" id="cartao-credito"
                         onclick="EfetuarPagto('credito')">Crédito</button>
                     <button type="button" class="botao" id="cartao-debito"
@@ -225,12 +256,6 @@
                     <button type="button" class="botao" id="cdinheiro"
                         onclick="EfetuarPagto('dinheiro')">Dinheiro</button>
                     <button type="button" class="botao" onclick="excluirDadosPagto()">Cancelar</button>
-                </div>
-                <br/>
-                <div id="troco">
-                    <label for="input-troco" class="label-form">Dinheiro:</label>
-                    <input id="input-troco"  oninput="formatarDinheiro(this)" class="input-form">
-                    
                 </div>
             </form>
         </div>
@@ -265,37 +290,35 @@
                 <div id="caixa-fechado">
                     <p>Nenhum caixa aberto!</p>
                     <p>Deseja abrir novo caixa?</p>
-                    <form  onsubmit="return AbrirCaixa(event)">
+                    <form onsubmit="return AbrirSenha(event)">
                         <label for="nome-operador" class="label-form">Nome do operador:</label>
-                        <input type="text" id="nome-operador" name="nome-operador"
-                            class="input-form" required><br/>
+                        <input type="text" id="nome-operador" name="nome-operador" class="input-form" required><br />
 
                         <label for="dinheiro-inicial" class="label-form">Dinheiro inicial:</label>
                         <input type="text" id="dinheiro-inicial" name="dinheiro-inicial" class="input-form"
-                            oninput="formatarDinheiro(this)" required><br/>
+                            oninput="formatarDinheiro(this)" required><br />
 
+                        <button class="botao" type="button" onclick="caixasAbertos()">Caixas abertos</button>
                         <button class="botao" type="submit">Abrir</button>
                     </form>
                 </div>
                 <div id="caixa-aberto">
-                    <p id="status-nome"></p><br/>
+                    <p id="status-nome"></p><br />
                     <p id="dinheiro-caixa"></p>
                     <p id="retirada-caixa"></p>
                     <p id="pix-caixa"></p>
                     <p id="debito-caixa"></p>
-                    <p id="credito-caixa"></p><br/>
+                    <p id="credito-caixa"></p><br />
                     <form onsubmit="return fazerRetirada(event)">
                         <button class="botao" type="submit">Fazer retirada</button>
-                        <label for="dinheiro-retirada" class="label-form">Valor:</label>
                         <input type="text" id="dinheiro-retirada" name="dinheiro-retirada" class="input-form"
-                            oninput="formatarDinheiro(this)" required>
+                            oninput="formatarDinheiro(this)" required placeholder="Valor">
                     </form>
-                    
-                    <form onsubmit="return Fechamento(event)">
+
+                    <form onsubmit="return AbrirSenha(event)" id="form-senha">
                         <button class="botao" type="submit">Fechar caixa</button>
-                        <label for="dinheiro-fechamento" class="label-form">Dinheiro final:</label>
                         <input type="text" id="dinheiro-fechamento" name="dinheiro-fechamento" class="input-form"
-                            oninput="formatarDinheiro(this)" required>
+                            oninput="formatarDinheiro(this)" required placeholder="Dinheiro final">
                     </form>
                 </div>
             </div>
