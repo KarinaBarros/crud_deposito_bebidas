@@ -301,10 +301,47 @@ function incluirVendas() {
     const vendaQuantidade = document.getElementById('venda-quantidade').value;
     const vendaValor = document.getElementById('venda-valor').value;
 
+    const linhas = tbodyVenda.querySelectorAll('tr');
+
     if (!vendaBebida || !vendaQuantidade) {
         alert('Escolha a bebida e quantidade.')
         return
     }
+
+    for (let linha of linhas) {
+        if (linha.cells[0].textContent === vendaBebida.selectedOptions[0].text) {
+
+            numero = parseInt(linha.cells[1].textContent);
+            quantidadeFinal = parseInt(vendaQuantidade) + numero;
+
+            linha.cells[1].textContent = '';
+            linha.cells[1].textContent = quantidadeFinal;
+
+            let valor = extrairValor(linha.cells[2].textContent);
+            let valorFinal = valor * quantidadeFinal;
+            valorFinal = valorFinal.toFixed(2);
+            console.log(valorFinal);
+            linha.cells[3].textContent = '';
+            linha.cells[3].textContent = formatDinheiro(valorFinal);
+
+            for (let objeto of listaProdutosVenda) {
+
+                if (objeto.bebida_id === vendaBebida.value) {
+                    quantidadeFinal = parseInt(objeto.quantidade) + parseInt(vendaQuantidade);
+                    objeto.quantidade = quantidadeFinal;
+                }
+            }
+            console.log(listaProdutosVenda);
+            document.getElementById('venda-bebida').value = '';
+            document.getElementById('venda-quantidade').value = '';
+            document.getElementById('venda-valor').value = '';
+
+
+            return;
+        }
+    }
+
+
     const objeto = {
         bebida_id: vendaBebida.value,
         quantidade: vendaQuantidade
@@ -334,6 +371,35 @@ function incluirVendas() {
     tdTotal.textContent = valor;
     listaVenda.appendChild(tdTotal);
 
+    let botaoExcluir = document.createElement("button");
+    botaoExcluir.classList.add('btn-alterar-estoque');
+    botaoExcluir.title = "Excluir produto";
+    botaoExcluir.innerHTML = `<i class="fas fa-trash"></i>`;
+    botaoExcluir.type = 'button';
+    botaoExcluir.setAttribute('data-id', vendaBebida.value);
+    botaoExcluir.setAttribute('data-nome', vendaBebida.selectedOptions[0].text);
+
+    botaoExcluir.onclick = function () {
+        const linhasNova = tbodyVenda.querySelectorAll('tr');
+        const idBebida = this.getAttribute('data-id');
+        const nomeBebida = this.getAttribute('data-nome');
+
+        listaProdutosVenda = listaProdutosVenda.filter(item => item.bebida_id !== idBebida);
+
+        linhasNova.forEach((linha) => {
+            if (nomeBebida === linha.cells[0].textContent) {
+                
+                linha.remove();
+            }
+        })
+
+    };
+
+    const tdVazio = document.createElement('td');
+    tdVazio.appendChild(botaoExcluir);
+    listaVenda.appendChild(tdVazio);
+
+
     tbodyVenda.appendChild(listaVenda);
 
     console.log(listaProdutosVenda);
@@ -341,6 +407,8 @@ function incluirVendas() {
     document.getElementById('venda-quantidade').value = '';
     document.getElementById('venda-valor').value = '';
 }
+
+
 
 //Funçao para enviar formulário de vendas
 async function submitFormVendas(event) {
@@ -387,12 +455,19 @@ async function BuscarCliente(event) {
     event.preventDefault();
     try {
         const pesquisaCliente = document.getElementById('pesquisa-cliente').value;
+        console.log('pesquisa', pesquisaCliente);
         const response = await axios.post('/api/busca_cliente', { venda_id: pesquisaCliente }, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         })
         console.log(response.data);
+        if (response.data.length === 0) {
+            alert('Comanda não possui itens.');
+            document.getElementById('tbody-pagto').innerHTML = '';
+            document.getElementById('total-pagto').value = '';
+            return
+        }
         let tbody = document.getElementById('tbody-pagto');
         tbody.innerHTML = '';
 
@@ -468,7 +543,7 @@ async function EfetuarPagto(tipoPagto) {
     if (!token && id) {
         window.location.href = '/login';
     }
-    if (!IdCaixa) {
+    if (!idCaixa) {
         alert('Abra um caixa para confirmar o pagamento');
         return;
     }
@@ -594,14 +669,14 @@ async function StatusCaixa() {
     }
     const caixaFechado = document.getElementById('caixa-fechado');
     const caixaAberto = document.getElementById('caixa-aberto');
-        if (!IdCaixa) {
-            caixaFechado.style.display = 'block';
-            caixaAberto.style.display = 'none';
-        } else {
-            caixaAberto.style.display = 'block';
-            caixaFechado.style.display = 'none';
-            CaixaAberto();
-        }
+    if (!IdCaixa) {
+        caixaFechado.style.display = 'block';
+        caixaAberto.style.display = 'none';
+    } else {
+        caixaAberto.style.display = 'block';
+        caixaFechado.style.display = 'none';
+        CaixaAberto();
+    }
 }
 StatusCaixa();
 
@@ -688,12 +763,19 @@ async function abrirFecharCaixa(event) {
     event.preventDefault();
     const caixaAberto = window.getComputedStyle(document.getElementById('caixa-aberto')).display;
     const caixaFechado = window.getComputedStyle(document.getElementById('caixa-fechado')).display;
+    const todosCaixas = window.getComputedStyle(document.getElementById('div-caixas')).display;
+    let todosContainers = false;
+    for (var i = 0; i < allContainers.length; i++) {
+        if(allContainers[i].style.display === 'block'){
+             todosContainers = true;
+        }
+    }
 
     if (!token && id) {
         window.location.href = '/login';
     }
 
-    if (caixaAberto === 'block') {
+    if (caixaAberto === 'block' && todosCaixas === 'none' && todosContainers) {
         const dinheiroFechamento = document.getElementById('dinheiro-fechamento').value;
         const senha = document.getElementById('senha-caixa').value;
         const data = {
@@ -723,7 +805,7 @@ async function abrirFecharCaixa(event) {
                 if (error.response && error.response.status === 401) {
                     console.log('Credenciais inválidas. Erro:', error.response.data.error);
                     alert('Você não tem permissão para acessar este recurso. Verifique suas credenciais.');
-                }else{
+                } else {
                     console.error('Erro ao fechar caixa:', error);
                     document.getElementById('form-fechamento').reset();
                     alert('Erro ao fechar caixa!');
@@ -733,7 +815,7 @@ async function abrirFecharCaixa(event) {
         }
     }
 
-    if (caixaFechado === 'block') {
+    if (caixaFechado === 'block' && todosCaixas === 'none' && todosContainers) {
         const nomeOperador = document.getElementById('nome-operador').value;
         const dinheiroInicial = document.getElementById('dinheiro-inicial').value;
         const dinheiroFormatado = extrairValor(dinheiroInicial);
@@ -742,7 +824,7 @@ async function abrirFecharCaixa(event) {
             user_id: id,
             nome_operador: nomeOperador,
             dinheiro: dinheiroFormatado,
-            senha : senha
+            senha: senha
         }
         try {
             const response = await axios.post('/api/abrir-caixa', data, {
@@ -750,13 +832,13 @@ async function abrirFecharCaixa(event) {
                     Authorization: `Bearer ${token}`
                 }
             })
-            
-            localStorage.setItem ('idCaixa', response.data.id);
+
+            localStorage.setItem('idCaixa', response.data.id);
             idCaixa = (response.data.id);
-            console.log('resposta',response.data.id);
+            console.log('resposta', response.data.id);
             CaixaAberto();
-            
-            
+
+
             alert(response.data.message);
             document.getElementById('caixa-fechado').style.display = 'none';
             document.getElementById('caixa-aberto').style.display = 'block';
@@ -768,16 +850,67 @@ async function abrirFecharCaixa(event) {
             if (error.response && error.response.status === 401) {
                 console.log('Credenciais inválidas. Erro:', error.response.data.error);
                 alert('Você não tem permissão para acessar este recurso. Verifique suas credenciais.');
-            }else{
+            } else {
                 console.error('Erro ao abrir caixa:', error);
                 alert('Erro ao abrir o caixa.');
+            }
+        }
+    }
+    if(todosCaixas === 'block' && todosContainers){
+        const senha = document.getElementById('senha-caixa').value;
+        try{
+            const data = {
+                user_id : id,
+                senha: senha
+            }
+            const response = await axios.post('/api/autorizar-senha', data, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            console.log(response);
+            escolherCaixa();
+        }catch (error) {
+            if (error.response && error.response.status === 401) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                alert('Você não tem permissão para acessar este recurso. Verifique suas credenciais.');
+            } else {
+                console.error('Erro ao escolher caixa aberto:', error);
+                alert('Erro ao escolher caixa aberto');
+            }
+        }
+    }
+    if(!todosContainers){
+        const senha = document.getElementById('senha-caixa').value;
+        try{
+            const data = {
+                user_id : id,
+                senha: senha
+            }
+            const response = await axios.post('/api/autorizar-senha', data, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            console.log(response);
+            Relatorio();
+            document.body.classList.remove('bloqueado');
+        }catch (error) {
+            if (error.response && error.response.status === 401) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                alert('Você não tem permissão para acessar este recurso. Verifique suas credenciais.');
+            } else {
+                console.error('Erro ao escolher caixa aberto:', error);
+                alert('Erro ao escolher caixa aberto');
             }
         }
     }
 
 }
 
-async function caixasAbertos(){
+let idCaixasAbertos;
+
+async function caixasAbertos() {
     document.getElementById('div-caixas').style.display = 'block';
     document.body.classList.add('bloqueado');
     const tBody = document.getElementById('caixas-abertos');
@@ -785,8 +918,8 @@ async function caixasAbertos(){
     if (!token && id) {
         window.location.href = '/login';
     }
-    try{
-        const response = await axios.post('/api/caixas-abertos', {user_id:id}, {
+    try {
+        const response = await axios.post('/api/caixas-abertos', { user_id: id }, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -795,7 +928,7 @@ async function caixasAbertos(){
 
         response.data.forEach((item) => {
             const div = document.createElement('tr');
-            
+
             const tdNome = document.createElement('td');
             tdNome.textContent = item.nome_operador;
             div.appendChild(tdNome);
@@ -807,7 +940,8 @@ async function caixasAbertos(){
             const tdBotao = document.createElement('td');
             const botao = document.createElement('button');
             botao.innerHTML = `<i class="fas fa-check"></i>`;
-            botao.onclick = () => escolherCaixa(item.id);
+            botao.onclick = () => AbrirSenha(event);
+            idCaixasAbertos = item.id;
             botao.classList.add('btn-caixas');
             tdBotao.appendChild(botao);
             div.appendChild(tdBotao);
@@ -820,12 +954,13 @@ async function caixasAbertos(){
 
 }
 
-function FecharCaixas(){
+function FecharCaixas() {
     document.getElementById('div-caixas').style.display = 'none';
     document.body.classList.remove('bloqueado');
 }
 
-async function escolherCaixa(valor){
+async function escolherCaixa() {
+   let valor = idCaixasAbertos;
     console.log('Id caixa:', valor);
     localStorage.setItem('idCaixa', valor);
     idCaixa = valor;
@@ -834,9 +969,10 @@ async function escolherCaixa(valor){
     CaixaAberto();
     document.getElementById('caixa-fechado').style.display = 'none';
     document.getElementById('caixa-aberto').style.display = 'block';
+    FecharSenha();
 }
 
-function formatarData(valor){
+function formatarData(valor) {
     const data = new Date(valor);
     const dataFormatada = data.toLocaleString('pt-BR', {
         day: '2-digit',
@@ -846,7 +982,7 @@ function formatarData(valor){
         minute: '2-digit',
         hour12: false
     });
-    return(dataFormatada)
+    return (dataFormatada)
 }
 
 
@@ -892,7 +1028,8 @@ var containerEstoque = document.getElementById('container-estoque');
 var containerPagamento = document.getElementById('container-pagamento');
 var containerBusca = document.getElementById('container-busca');
 var containerTVendas = document.getElementById('container-tvendas');
-var allContainers = [containerPrincipal, containerCadastro, containerVendas, containerEstoque, containerPagamento, containerBusca, containerTVendas];
+var containerRelatorio = document.getElementById('container-relatorio');
+var allContainers = [containerPrincipal, containerCadastro, containerVendas, containerEstoque, containerPagamento, containerBusca, containerTVendas, containerRelatorio];
 
 var botaoCBebidas = document.getElementById('c-bebidas');
 var botaoVBebidas = document.getElementById('v-bebidas');
@@ -900,7 +1037,8 @@ var botaoPagto = document.getElementById('pagto');
 var botaoBuscaC = document.getElementById('busca-c');
 var botaoTodasV = document.getElementById('todas-v');
 var botaoEstoqueB = document.getElementById('estoque-b');
-var allBotao = [botaoCBebidas, botaoVBebidas, botaoPagto, botaoBuscaC, botaoTodasV, botaoEstoqueB];
+var botaoRelatorio = document.getElementById('relatorio');
+var allBotao = [botaoCBebidas, botaoVBebidas, botaoPagto, botaoBuscaC, botaoTodasV, botaoEstoqueB, botaoRelatorio];
 
 var hamburgerMenu = document.getElementById('hamburger-menu');
 var closeMenu = document.getElementById('close-menu');
@@ -953,7 +1091,33 @@ function cadastroBebidas() {
     closeNav2();
 }
 
+function FecharContainers(){
+    for (var i = 0; i < allContainers.length; i++) {
+        allContainers[i].style.display = 'none';
+    }
+    AbrirSenha(event);
+}
+
+function Relatorio() {
+    document.getElementById('form-fechamento').reset();
+    for (var i = 0; i < allContainers.length; i++) {
+        allContainers[i].style.display = 'none';
+    }
+    containerRelatorio.style.display = 'block';
+
+
+    for (var ib = 0; ib < allBotao.length; ib++) {
+        allBotao[ib].style.color = 'var(--color-text)';
+        allBotao[ib].style.borderBottom = '2px solid var(--color-text)';
+    }
+    botaoRelatorio.style.color = 'var(--color-highlight)';
+    botaoRelatorio.style.borderBottom = '2px solid var(--color-highlight)';
+    document.getElementById('div-senha').style.display = 'none';
+    closeNav2();
+}
+
 function vendasBebidas() {
+
     for (var i = 0; i < allContainers.length; i++) {
         allContainers[i].style.display = 'none';
     }
@@ -1072,8 +1236,9 @@ async function submitForm(event) {
     }
 }
 
-function submitVenda() {
-    event.preventDefault();
-    document.getElementById("form-venda").reset();
-    alert('Venda confirmada!');
+function cancelarVenda() {
+    const formVendas = document.getElementById('form-vendas');
+    const tBody = document.getElementById('tbody-vendas');
+    formVendas.reset();
+    tBody.innerHTML = '';
 }

@@ -15,16 +15,21 @@
 <body>
     <div class="navigation">
         <nav class="nav-home" id="navigation-home">
+            <div class="name-logout">
+                <!--colocar nesse p o nome do cadastro de quem esta logado-->
+                <p id="nome-login"></p>
+                <!--formulario para o cliente fazer logout-->
+                <button onclick="alertLogout()">x</button>
+            </div>
             <button id="c-bebidas" onclick="cadastroBebidas()"><i class="fas fa-wine-bottle"></i>Cadastro de
-                Bebidas</button>
-            <button id="v-bebidas" onclick="vendasBebidas()"><i class="fas fa-shopping-cart"></i>Vendas de
-                Bebidas</button>
+                Produtos</button>
+            <button id="v-bebidas" onclick="vendasBebidas()"><i class="fas fa-shopping-cart"></i>Vendas</button>
             <button id="pagto" onclick="Pagamento()"><i class="far fa-credit-card"></i> Efetuar pagamento</button>
             <button id="busca-c" onclick="Busca()"><i class="fas fa-search"></i>
-                Busca de Clientes</button>
+                Comandas</button>
             <button id="todas-v" onclick="TVendas()"><i class="fas fa-chart-line"></i>Controle de caixa</button>
             <button id="estoque-b" onclick="Estoque()"><i class="fas fa-warehouse"></i>Estoque</button>
-            <button id="relatorio"><i class="fas fa-file-alt"></i>Relatório</button>
+            <button id="relatorio" onclick="FecharContainers()"><i class="fas fa-file-alt"></i>Relatório</button>
         </nav>
         <button id="hamburger-menu" onclick="toggleNav()">&#9776;</button>
         <button id="close-menu" onclick="closeNav()">x</button>
@@ -56,12 +61,6 @@
         </div>
         <div class="container-right">
             <img src="./imagens/alcohol-1961542_1280.jpg" alt="bebidas" class="img-principal">
-            <div class="name-logout">
-                <!--colocar nesse p o nome do cadastro de quem esta logado-->
-                <p id="nome-login"></p>
-                <!--formulario para o cliente fazer logout-->
-                <button onclick="alertLogout()">x</button>
-            </div>
         </div>
 
         <div id="container-principal">
@@ -81,15 +80,15 @@
         </div>
         <div id="container-cadastro">
             <button class="fechar" onclick="Close()">x</button>
-            <h2 class="titulo-form"><i class="fas fa-wine-bottle"></i> Cadastro de Bebidas</h2>
+            <h2 class="titulo-form"><i class="fas fa-wine-bottle"></i> Cadastro de Produtos</h2>
             <Form class="formulario" id="form-cadastrob" onsubmit="return submitForm(event)">
                 <label for="nome-bebida" class="label-form">Nome do produto:</label>
                 <input type="text" id="nome-bebida" name="nome-bebida" class="input-form" required>
 
                 <label for="tipo-bebida" class="label-form">Tipo:</label>
                 <select name="tipo-bebida" id="tipo-bebida" class="input-form">
-                    <option value="alcoolica">Alcóolica</option>
-                    <option value="nao-alcoolica">Não Alcóolica</option>
+                    <option value="bebida">Bebida</option>
+                    <option value="outros">Outros</option>
                 </select>
 
                 <label for="unidade-caixa" class="label-form">Quantidade de caixas:</label>
@@ -116,8 +115,8 @@
 
         <div id="container-vendas">
             <button class="fechar" onclick="Close()">x</button>
-            <h2><i class="fas fa-shopping-cart"></i> Vendas de bebidas</h2>
-            <form action="" method="post" id="form-vendas" onsubmit="return submitFormVendas(event)">
+            <h2><i class="fas fa-shopping-cart"></i> Vendas</h2>
+            <form id="form-vendas" onsubmit="return submitFormVendas(event)">
 
                 <label for="venda-nome" class="label-form">Número da comanda:</label>
                 <input type="text" id="venda-nome" name="venda-nome" class="input-form" autocomplete="off" maxlength="5"
@@ -144,6 +143,7 @@
                                 <th>Quantidade</th>
                                 <th>Valor</th>
                                 <th>Total</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody id="tbody-vendas">
@@ -154,9 +154,9 @@
                 <br /><br /><br />
 
                 <div class="botoes">
-                    <button type="submit" class="botao" id="form-venda" onsubmit="submitVenda(event)">Confirmar
+                    <button type="submit" class="botao" id="form-venda" >Confirmar
                         Venda</button>
-                    <button type="reset" class="botao">Cancelar</button>
+                    <button type="button" class="botao" onclick="cancelarVenda()">Cancelar</button>
                     <button type="button" onclick="Pagamento()" class="botao">Fazer pagamento</button>
                 </div>
             </form>
@@ -202,7 +202,7 @@
                         <thead>
                             <tr>
                                 <th>Tipo </th>
-                                <th>Bebida</th>
+                                <th>Produto</th>
                                 <th>Estoque</th>
                                 <th></th>
                             </tr>
@@ -215,12 +215,9 @@
 
         <div id="container-pagamento">
             <button class="fechar" onclick="Close()">x</button>
-            <h2><i class="far fa-credit-card"></i> Efetuar Pagamentos</h2>
+            <h2><i class="far fa-credit-card"></i> Efetuar Pagamento</h2>
             <form class="busca-pagto" onsubmit="return BuscarCliente(event)">
-                <label for="pesquisa-cliente" class="label-form">Buscar cliente:</label>
-                <select type="text" id="pesquisa-cliente" name="pesquisa-cliente" required>
-
-                </select>
+                <input type="text" id="pesquisa-cliente" name="pesquisa-cliente" placeholder="Comanda" oninput="formatInput(this)" required>
                 <button type="submit" class="buscar"><i class="fas fa-search"></i></button>
             </form>
             <div class="overflow-pagto">
@@ -262,9 +259,9 @@
 
         <div id="container-busca">
             <button class="fechar" onclick="Close()">x</button>
-            <h2><i class="fas fa-search"></i> Busca de Clientes</h2>
+            <h2><i class="fas fa-search"></i> Comandas</h2>
             <form action="" method="post" class="busca">
-                <input type="text" id="busca-clientes" name="busca-clientes" placeholder="Buscar cliente...">
+                <input type="text" id="busca-clientes" name="busca-clientes" placeholder="Buscar comanda...">
                 <button type="submit" class="buscar" disabled><i class="fas fa-search"></i></button>
             </form>
             <div class="overflow">
@@ -321,6 +318,13 @@
                             oninput="formatarDinheiro(this)" required placeholder="Dinheiro final">
                     </form>
                 </div>
+            </div>
+        </div>
+        <div id="container-relatorio">
+            <button class="fechar" onclick="Close()">x</button>
+            <h2><i class="fas fa-file-alt"></i> Relatório</h2>
+            <div id="itens-relatorio">
+
             </div>
         </div>
     </main>

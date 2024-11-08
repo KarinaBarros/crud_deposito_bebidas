@@ -139,7 +139,9 @@ i {
 #container-pendente,
 #container-efetuado,
 #container-busca,
-#container-tvendas {
+#container-tvendas,
+#container-relatorio,
+#container-relatorio {
     display: none;
     position: absolute;
     top: 0;
@@ -154,19 +156,29 @@ i {
 .name-logout {
     display: flex;
     flex-direction: row;
-    position: absolute;
-    top: 0;
-    right: 0;
     padding: 5px 10px;
-    background-color: rgba(255, 255, 255, 0.7);
     margin: 5px;
+    margin-right: 20px;
+    margin-left: auto;
+}
+
+.name-logout button{
+    margin-right: 0;
+    margin-left: auto;
+    color: red;
+    font-size: 25px;
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
 #nome-login {
     font-family: var(--font);
-    font-size: 20px;
+    font-size: 25px;
     font-weight: 600;
-    margin-right: 20px;
+    margin-right: 50px;
+    color: red;
 }
 
 .container-right {
@@ -536,7 +548,8 @@ select {
     #container-pendente,
     #container-efetuado,
     #container-busca,
-    #container-tvendas {
+    #container-tvendas,
+    #container-relatorio {
         width: 80%;
         margin: 50px 5%;
     }

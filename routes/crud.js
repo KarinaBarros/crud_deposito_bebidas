@@ -150,7 +150,8 @@ router.post('/busca_cliente', authenticateToken, async (req, res) => {
     const response = await conn`SELECT vb.*, b.*, vb.quantidade
                                   FROM vendas_bebidas vb
                                   INNER JOIN bebidas b ON vb.bebida_id = b.id
-                                  WHERE vb.venda_id = ${venda_id}`;
+                                  INNER JOIN vendas v ON vb.venda_id = v.id
+                                  WHERE v.nome_cliente = ${venda_id}`;
     res.json(response);
   } catch (error) {
     console.error('Erro ao buscar cliente:', error);
@@ -300,6 +301,22 @@ router.post('/fechamento', authenticateToken, async (req, res) => {
     res.status(200).json({ message: 'Caixa fechado com sucesso!' });
   } catch (error) {
     console.error('Erro ao fechar caixa:', error);
+    res.status(500).json({ error: 'Erro ao processar a solicitação' });
+  }
+})
+
+router.post('/autorizar-senha', authenticateToken, async (req, res) => {
+  const { user_id, senha } = req.body;
+
+  try {
+    const user = await conn`SELECT * FROM users WHERE id = ${user_id}`;
+    const passwordMatch = await bcrypt.compare(senha, user[0].senha);
+    if(!passwordMatch){
+      return res.status(401).json({ error: 'Credenciais inválidas' });
+    }
+    res.status(200).json({ message: 'Acesso Concedido!' });
+  } catch (error) {
+    console.error('Erro ao verificar caixas abertos:', error);
     res.status(500).json({ error: 'Erro ao processar a solicitação' });
   }
 })
