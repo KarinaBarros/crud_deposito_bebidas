@@ -31,6 +31,8 @@ CREATE TABLE vendas_bebidas (
     venda_id INT NOT NULL,
     bebida_id INT NOT NULL,
     quantidade INT NOT NULL,
+    lucro_bebida NUMERIC(10, 2) DEFAULT 0,
+    valor_venda NUMERIC(10, 2) DEFAULT 0,
     FOREIGN KEY (venda_id) REFERENCES vendas(id) ON DELETE CASCADE,
     FOREIGN KEY (bebida_id) REFERENCES bebidas(id) ON DELETE CASCADE
 );
@@ -41,6 +43,7 @@ CREATE TABLE caixa (
     nome_operador VARCHAR(100),
     status VARCHAR(20),
     dinheiro NUMERIC(10, 2) NOT NULL,
+    dinheiro_inicial NUMERIC(10, 2),
     dinheiro_final NUMERIC(10, 2) DEFAULT 0,
     retirada NUMERIC(10, 2) DEFAULT 0,
     pix NUMERIC(10, 2) DEFAULT 0,

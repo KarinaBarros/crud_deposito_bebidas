@@ -116,21 +116,25 @@ router.post('/vendas', authenticateToken, async (req, res) => {
   const { user_id, nome_cliente, lista } = req.body;
   console.log(lista);
   try {
-    const nomeExistente = await conn`SELECT * FROM vendas WHERE nome_cliente = ${nome_cliente} AND status = 'pendente' AND user_id = ${user_id}`;
     for (let item of lista) {
+      const nomeExistente = await conn`SELECT * FROM vendas WHERE nome_cliente = ${nome_cliente} AND status = 'pendente' AND user_id = ${user_id}`;
       const bebida_id = item.bebida_id;
       const quantidade = item.quantidade;
+      const valores = await conn`SELECT custo_por_unidade, valor_venda_por_unidade FROM bebidas WHERE id = ${bebida_id}`;
+      const custo = valores[0].custo_por_unidade;
+      const venda = valores[0].valor_venda_por_unidade;
+      const lucro = venda - custo;
       if (nomeExistente.length > 0) {
         const venda_id = nomeExistente[0].id;
         await conn.begin(async (transaction) => {
-          await transaction`INSERT INTO vendas_bebidas (venda_id, bebida_id, quantidade) VALUES (${venda_id}, ${bebida_id}, ${quantidade})`;
+          await transaction`INSERT INTO vendas_bebidas (venda_id, bebida_id, quantidade, lucro_bebida, valor_venda) VALUES (${venda_id}, ${bebida_id}, ${quantidade}, ${lucro}, ${venda})`;
           await transaction`UPDATE bebidas SET total_unidades = total_unidades - ${quantidade} WHERE id = ${bebida_id}`;
         })
       } else {
         await conn.begin(async (transaction) => {
           const response = await transaction`INSERT INTO vendas (user_id, nome_cliente) VALUES (${user_id}, ${nome_cliente}) RETURNING id`;
           const venda_id = response[0].id;
-          await transaction`INSERT INTO vendas_bebidas (venda_id, bebida_id, quantidade) VALUES (${venda_id}, ${bebida_id}, ${quantidade})`;
+          await transaction`INSERT INTO vendas_bebidas (venda_id, bebida_id, quantidade, lucro_bebida, valor_venda) VALUES (${venda_id}, ${bebida_id}, ${quantidade}, ${lucro}, ${venda})`;
           await transaction`UPDATE bebidas SET total_unidades = total_unidades - ${quantidade} WHERE id = ${bebida_id}`;
         })
       }
@@ -151,7 +155,8 @@ router.post('/busca_cliente', authenticateToken, async (req, res) => {
                                   FROM vendas_bebidas vb
                                   INNER JOIN bebidas b ON vb.bebida_id = b.id
                                   INNER JOIN vendas v ON vb.venda_id = v.id
-                                  WHERE v.nome_cliente = ${venda_id}`;
+                                  WHERE v.nome_cliente = ${venda_id}
+                                  AND v.status = 'pendente'`;
     res.json(response);
   } catch (error) {
     console.error('Erro ao buscar cliente:', error);
@@ -160,32 +165,32 @@ router.post('/busca_cliente', authenticateToken, async (req, res) => {
 })
 
 router.post('/concluir_venda', authenticateToken, async (req, res) => {
-  const { id, forma_pagto } = req.body;
+  const { cliente, forma_pagto, id_caixa } = req.body;
   try {
     await conn.begin(async (transaction) => {
-      await transaction`UPDATE vendas SET forma_pagto = ${forma_pagto}, status = 'efetuado' WHERE id = ${id}`;
-      const response = await transaction`SELECT vb.*, b.*, vb.quantidade
-                                  FROM vendas_bebidas vb
-                                  INNER JOIN bebidas b ON vb.bebida_id = b.id
-                                  WHERE vb.venda_id = ${id}`;
+      await transaction`UPDATE vendas SET forma_pagto = ${forma_pagto}, status = 'efetuado' WHERE nome_cliente = ${cliente}`;
+      const response = await transaction`SELECT vendas_bebidas.*
+                                          FROM vendas_bebidas
+                                          JOIN vendas ON vendas_bebidas.venda_id = vendas.id
+                                          WHERE vendas.nome_cliente = ${cliente};`
       console.log(response);
       let total = 0;
       let lucro = 0;
       response.forEach(item => {
-        total += (item.valor_venda_por_unidade * item.quantidade);
-        lucro += ((item.valor_venda_por_unidade - item.custo_por_unidade) * item.quantidade);
+        total += (item.valor_venda * item.quantidade);
+        lucro += (item.lucro_bebida * item.quantidade);
       });
       if (forma_pagto === 'dinheiro') {
-        await transaction`UPDATE caixa SET dinheiro = dinheiro + ${total}, lucro = lucro + ${lucro}`;
+        await transaction`UPDATE caixa SET dinheiro = dinheiro + ${total}, lucro = lucro + ${lucro} WHERE id = ${id_caixa}`;
       }
       if (forma_pagto === 'pix') {
-        await transaction`UPDATE caixa SET pix = pix + ${total}, lucro = lucro + ${lucro}`;
+        await transaction`UPDATE caixa SET pix = pix + ${total}, lucro = lucro + ${lucro} WHERE id = ${id_caixa}`;
       }
       if (forma_pagto === 'debito') {
-        await transaction`UPDATE caixa SET debito = debito + ${total}, lucro = lucro + ${lucro}`;
+        await transaction`UPDATE caixa SET debito = debito + ${total}, lucro = lucro + ${lucro} WHERE id = ${id_caixa}`;
       }
       if (forma_pagto === 'credito') {
-        await transaction`UPDATE caixa SET credito = credito + ${total}, lucro = lucro + ${lucro}`;
+        await transaction`UPDATE caixa SET credito = credito + ${total}, lucro = lucro + ${lucro} WHERE id = ${id_caixa}`;
       }
     })
     res.status(200).json({ message: 'Pagamento efetuado!' });
@@ -241,10 +246,10 @@ router.post('/abrir-caixa', authenticateToken, async (req, res) => {
   try {
     const user = await conn`SELECT * FROM users WHERE id = ${user_id}`;
     const passwordMatch = await bcrypt.compare(senha, user[0].senha);
-    if(!passwordMatch){
+    if (!passwordMatch) {
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
-    const response = await conn`INSERT INTO caixa (user_id, nome_operador, dinheiro, status) VALUES (${user_id}, ${nome_operador}, ${dinheiro}, 'aberto') RETURNING id`;
+    const response = await conn`INSERT INTO caixa (user_id, nome_operador, dinheiro, dinheiro_inicial, status) VALUES (${user_id}, ${nome_operador}, ${dinheiro}, ${dinheiro}, 'aberto') RETURNING id`;
     res.status(200).json({ message: 'Caixa aberto com sucesso!', id: response[0].id });
   } catch (error) {
     console.error('Erro ao abrir o caixa:', error);
@@ -294,7 +299,7 @@ router.post('/fechamento', authenticateToken, async (req, res) => {
   try {
     const user = await conn`SELECT * FROM users WHERE id = ${user_id}`;
     const passwordMatch = await bcrypt.compare(senha, user[0].senha);
-    if(!passwordMatch){
+    if (!passwordMatch) {
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
     await conn`UPDATE caixa SET status = 'fechado', dinheiro_final = ${dinheiro_final}, hora_final = NOW() WHERE id = ${id}`;
@@ -311,12 +316,46 @@ router.post('/autorizar-senha', authenticateToken, async (req, res) => {
   try {
     const user = await conn`SELECT * FROM users WHERE id = ${user_id}`;
     const passwordMatch = await bcrypt.compare(senha, user[0].senha);
-    if(!passwordMatch){
+    if (!passwordMatch) {
       return res.status(401).json({ error: 'Credenciais inválidas' });
     }
     res.status(200).json({ message: 'Acesso Concedido!' });
   } catch (error) {
     console.error('Erro ao verificar caixas abertos:', error);
+    res.status(500).json({ error: 'Erro ao processar a solicitação' });
+  }
+})
+
+router.post('/relatorio', authenticateToken, async (req, res) => {
+  const { user_id } = req.body;
+
+  try {
+    const response = await conn`SELECT * FROM caixa WHERE user_id = ${user_id}`;
+
+    res.json(response);
+  } catch (error) {
+    console.error('Erro ao consultar relatorio:', error);
+    res.status(500).json({ error: 'Erro ao processar a solicitação' });
+  }
+})
+
+router.post('/excluir-evento', authenticateToken, async (req, res) => {
+  const { user_id } = req.body;
+
+  try {
+    const response = await conn`SELECT FROM caixa WHERE user_id = ${user_id} AND status = 'aberto'`;
+    if(response.length > 0 ){
+      return res.status(200).json({ message: 'aberto' });
+    }
+    await conn.begin(async (transaction) => { 
+      await transaction`DELETE FROM caixa WHERE user_id =${user_id}`;
+      await transaction`DELETE FROM vendas_bebidas WHERE venda_id IN (SELECT id FROM vendas WHERE user_id = ${user_id})`;
+      await transaction`DELETE FROM vendas WHERE user_id =${user_id}`;
+    })
+    res.status(200).json({ message: 'Dados do evento excluídos!' });
+
+  } catch (error) {
+    console.error('Erro ao consultar relatorio:', error);
     res.status(500).json({ error: 'Erro ao processar a solicitação' });
   }
 })

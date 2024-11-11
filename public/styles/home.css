@@ -487,6 +487,17 @@ select {
     font-size: 25px;
 }
 
+#itens-relatorio{
+    overflow: auto;
+    height: 90%;
+}
+
+#itens-relatorio p, #resposta-relatorio{
+    font-family: var(--font);
+    font-size: 25px;
+    margin-bottom: 5px;
+}
+
 @media screen and (max-width: 1024px) {
     body {
         flex-direction: column;

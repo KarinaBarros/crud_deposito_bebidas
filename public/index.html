@@ -38,7 +38,8 @@
     <main>
         <div id="div-senha">
             <form id="form-fechamento" onsubmit="return abrirFecharCaixa(event)">
-                <input type="password" id="senha-caixa" class="input-form" placeholder="senha" required>
+                <input type="password" id="senha-caixa" class="input-form" placeholder="senha" required
+                    autocomplete="off">
                 <button type="submit" class="button-senha">Ok</button>
                 <button type="button" class="button-fechar" onclick="FecharSenha()">x</button>
             </form>
@@ -154,7 +155,7 @@
                 <br /><br /><br />
 
                 <div class="botoes">
-                    <button type="submit" class="botao" id="form-venda" >Confirmar
+                    <button type="submit" class="botao" id="form-venda">Confirmar
                         Venda</button>
                     <button type="button" class="botao" onclick="cancelarVenda()">Cancelar</button>
                     <button type="button" onclick="Pagamento()" class="botao">Fazer pagamento</button>
@@ -217,7 +218,8 @@
             <button class="fechar" onclick="Close()">x</button>
             <h2><i class="far fa-credit-card"></i> Efetuar Pagamento</h2>
             <form class="busca-pagto" onsubmit="return BuscarCliente(event)">
-                <input type="text" id="pesquisa-cliente" name="pesquisa-cliente" placeholder="Comanda" oninput="formatInput(this)" required>
+                <input type="text" id="pesquisa-cliente" name="pesquisa-cliente" placeholder="Comanda"
+                    oninput="formatInput(this)" required autocomplete="off">
                 <button type="submit" class="buscar"><i class="fas fa-search"></i></button>
             </form>
             <div class="overflow-pagto">
@@ -287,7 +289,7 @@
                 <div id="caixa-fechado">
                     <p>Nenhum caixa aberto!</p>
                     <p>Deseja abrir novo caixa?</p>
-                    <form onsubmit="return AbrirSenha(event)">
+                    <form id="form-caixa-fechado" onsubmit="return AbrirSenha(event)">
                         <label for="nome-operador" class="label-form">Nome do operador:</label>
                         <input type="text" id="nome-operador" name="nome-operador" class="input-form" required><br />
 
@@ -324,8 +326,35 @@
             <button class="fechar" onclick="Close()">x</button>
             <h2><i class="fas fa-file-alt"></i> Relatório</h2>
             <div id="itens-relatorio">
+                <p>Dados dos caixas:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Abertura</th>
+                            <th>Fechamento</th>
+                            <th>Quebra</th>
+                            <th>Dinheiro</th>
+                            <th>Pix</th>
+                            <th>Débito</th>
+                            <th>Crédito</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-relatorio">
 
+                    </tbody>
+                </table>
+                <div>
+                    <p id="relatorio-total"></p>
+                    <p id="relatorio-lucro"></p>
+                    <p id="relatorio-dinheiro"></p>
+                    <p id="relatorio-pix"></p>
+                    <p id="relatorio-debito"></p>
+                    <p id="relatorio-credito"></p>
+                </div>
+                <button type="button" class="botao" onclick="zerarEvento()">Limpar dados do evento</button>
             </div>
+            <p id="resposta-relatorio"></p>
         </div>
     </main>
 

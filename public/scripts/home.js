@@ -13,6 +13,10 @@ async function verificarToken() {
             });
             console.log('Acesso concedido' + response);
         } catch (error) {
+            if (error.response && error.response.status === 403) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                window.location.href = '/login';
+            }
             console.error('Erro:', error);
             window.location.href = '/login';
         }
@@ -89,6 +93,10 @@ async function buscaEstoque() {
             });
 
         } catch (error) {
+            if (error.response && error.response.status === 403) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                window.location.href = '/login';
+            }
             console.error('Erro:', error);
         }
     } else {
@@ -127,6 +135,10 @@ async function EstoqueId(idProduto) {
         }
 
     } catch (error) {
+        if (error.response && error.response.status === 403) {
+            console.log('Credenciais inválidas. Erro:', error.response.data.error);
+            window.location.href = '/login';
+        }
         console.error('Erro:', error);
     }
 }
@@ -187,6 +199,10 @@ async function submitFormAlterar(event) {
             document.getElementById('container-alterar-estoque').style.display = 'none';
             document.getElementById('container-estoque-principal').style.display = 'block';
         } catch (error) {
+            if (error.response && error.response.status === 403) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                window.location.href = '/login';
+            }
             console.error('Erro ao enviar os dados:', error);
             alert(error.message);
         }
@@ -209,6 +225,10 @@ async function IdExcluir(idProdutoExcluir) {
                 alert(response.data.message);
                 buscaEstoque();
             } catch (error) {
+                if (error.response && error.response.status === 403) {
+                    console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                    window.location.href = '/login';
+                }
                 console.error('Erro ao enviar os dados:', error);
                 alert(error.message);
             }
@@ -246,6 +266,10 @@ async function ListarClientes() {
             })
             pesquisaCliente.value = '';
         } catch (error) {
+            if (error.response && error.response.status === 403) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                window.location.href = '/login';
+            }
             console.error('Erro ao buscar clientes:', error);
         }
     } else {
@@ -388,7 +412,7 @@ function incluirVendas() {
 
         linhasNova.forEach((linha) => {
             if (nomeBebida === linha.cells[0].textContent) {
-                
+
                 linha.remove();
             }
         })
@@ -442,7 +466,15 @@ async function submitFormVendas(event) {
             tbodyVenda.innerHTML = '';
             listaProdutosVenda = [];
         } catch (error) {
+            if (error.response && error.response.status === 403) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                window.location.href = '/login';
+            }
             console.error('Erro ao inserir venda de nova comanda:', error);
+            if (error.response && error.response.status === 403) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                window.location.href = '/login';
+            }
         }
     } else {
         window.location.href = '/login';
@@ -507,6 +539,10 @@ async function BuscarCliente(event) {
         document.getElementById('total-pagto').value = total;
 
     } catch (error) {
+        if (error.response && error.response.status === 403) {
+            console.log('Credenciais inválidas. Erro:', error.response.data.error);
+            window.location.href = '/login';
+        }
         console.error('Erro ao buscar cliente:', error);
     }
 }
@@ -522,7 +558,7 @@ function excluirDadosPagto() {
 function ConlcuirPagamento() {
     const inputTroco = document.getElementById('input-troco').value;
     if (!inputTroco) {
-        alert('Preencha o valor do dinheiro.')
+        alert('Preencha o valor do dinheiro.');
     } else {
         let valor = extrairValor(inputTroco);
         const InputTotal = document.getElementById('total-pagto').value;
@@ -569,8 +605,9 @@ async function EfetuarPagto(tipoPagto) {
             }
             try {
                 const data = {
-                    id: pesquisaCliente,
-                    forma_pagto: tipoPagto
+                    cliente: pesquisaCliente,
+                    forma_pagto: tipoPagto,
+                    id_caixa: idCaixa
                 }
                 const response = await axios.post('/api/concluir_venda', data, {
                     headers: {
@@ -584,6 +621,10 @@ async function EfetuarPagto(tipoPagto) {
                 CaixaAberto();
                 document.getElementById('input-troco').value = '';
             } catch (error) {
+                if (error.response && error.response.status === 403) {
+                    console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                    window.location.href = '/login';
+                }
                 console.error('Erro ao confirmar pagamento:', error);
             }
         }
@@ -636,6 +677,10 @@ async function TodosClientes() {
 
 
     } catch (error) {
+        if (error.response && error.response.status === 403) {
+            console.log('Credenciais inválidas. Erro:', error.response.data.error);
+            window.location.href = '/login';
+        }
         console.error('Erro ao bucar todos os clientes:', error);
     }
 }
@@ -714,6 +759,10 @@ async function CaixaAberto() {
         creditoCaixa.textContent = `Crédito: ${formatDinheiro(response.data[0].credito)}`;
         idCaixa = response.data[0].id;
     } catch (error) {
+        if (error.response && error.response.status === 403) {
+            console.log('Credenciais inválidas. Erro:', error.response.data.error);
+            window.location.href = '/login';
+        }
         console.error('Erro ao pesquisar dados do caixa:', error);
     }
 }
@@ -740,6 +789,10 @@ async function fazerRetirada(event) {
             alert(response.data.message);
             CaixaAberto();
         } catch (error) {
+            if (error.response && error.response.status === 403) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                window.location.href = '/login';
+            }
             console.error('Erro ao fazer retirada:', error);
             alert('Erro ao fazer retirada!');
         }
@@ -766,8 +819,8 @@ async function abrirFecharCaixa(event) {
     const todosCaixas = window.getComputedStyle(document.getElementById('div-caixas')).display;
     let todosContainers = false;
     for (var i = 0; i < allContainers.length; i++) {
-        if(allContainers[i].style.display === 'block'){
-             todosContainers = true;
+        if (allContainers[i].style.display === 'block') {
+            todosContainers = true;
         }
     }
 
@@ -797,11 +850,16 @@ async function abrirFecharCaixa(event) {
                 document.getElementById('caixa-aberto').style.display = 'none';
                 document.getElementById('form-senha').reset();
                 document.getElementById('form-fechamento').reset();
+                document.getElementById('form-caixa-fechado').reset();
                 document.getElementById('div-senha').style.display = 'none';
                 document.body.classList.remove('bloqueado');
                 localStorage.removeItem('idCaixa');
                 idCaixa = '';
             } catch (error) {
+                if (error.response && error.response.status === 403) {
+                    console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                    window.location.href = '/login';
+                }
                 if (error.response && error.response.status === 401) {
                     console.log('Credenciais inválidas. Erro:', error.response.data.error);
                     alert('Você não tem permissão para acessar este recurso. Verifique suas credenciais.');
@@ -847,6 +905,10 @@ async function abrirFecharCaixa(event) {
             document.getElementById('div-senha').style.display = 'none';
             document.body.classList.remove('bloqueado');
         } catch (error) {
+            if (error.response && error.response.status === 403) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                window.location.href = '/login';
+            }
             if (error.response && error.response.status === 401) {
                 console.log('Credenciais inválidas. Erro:', error.response.data.error);
                 alert('Você não tem permissão para acessar este recurso. Verifique suas credenciais.');
@@ -856,11 +918,11 @@ async function abrirFecharCaixa(event) {
             }
         }
     }
-    if(todosCaixas === 'block' && todosContainers){
+    if (todosCaixas === 'block' && todosContainers) {
         const senha = document.getElementById('senha-caixa').value;
-        try{
+        try {
             const data = {
-                user_id : id,
+                user_id: id,
                 senha: senha
             }
             const response = await axios.post('/api/autorizar-senha', data, {
@@ -870,7 +932,11 @@ async function abrirFecharCaixa(event) {
             })
             console.log(response);
             escolherCaixa();
-        }catch (error) {
+        } catch (error) {
+            if (error.response && error.response.status === 403) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                window.location.href = '/login';
+            }
             if (error.response && error.response.status === 401) {
                 console.log('Credenciais inválidas. Erro:', error.response.data.error);
                 alert('Você não tem permissão para acessar este recurso. Verifique suas credenciais.');
@@ -880,11 +946,11 @@ async function abrirFecharCaixa(event) {
             }
         }
     }
-    if(!todosContainers){
+    if (!todosContainers) {
         const senha = document.getElementById('senha-caixa').value;
-        try{
+        try {
             const data = {
-                user_id : id,
+                user_id: id,
                 senha: senha
             }
             const response = await axios.post('/api/autorizar-senha', data, {
@@ -894,8 +960,13 @@ async function abrirFecharCaixa(event) {
             })
             console.log(response);
             Relatorio();
+            dadosRelatorio();
             document.body.classList.remove('bloqueado');
-        }catch (error) {
+        } catch (error) {
+            if (error.response && error.response.status === 403) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                window.location.href = '/login';
+            }
             if (error.response && error.response.status === 401) {
                 console.log('Credenciais inválidas. Erro:', error.response.data.error);
                 alert('Você não tem permissão para acessar este recurso. Verifique suas credenciais.');
@@ -949,9 +1020,160 @@ async function caixasAbertos() {
             tBody.appendChild(div);
         })
     } catch (error) {
+        if (error.response && error.response.status === 403) {
+            console.log('Credenciais inválidas. Erro:', error.response.data.error);
+            window.location.href = '/login';
+        }
         console.error('Erro ao buscar caixas:', error);
     }
 
+}
+
+//Função para buscar o relatorio
+async function dadosRelatorio() {
+    document.getElementById('itens-relatorio').style.display = 'block';
+    document.getElementById('resposta-relatorio').textContent = '';
+
+    const tbodyRelatorio = document.getElementById('tbody-relatorio');
+    tbodyRelatorio.innerHTML = '';
+    const relatorioTotal = document.getElementById('relatorio-total');
+    const relatorioLucro = document.getElementById('relatorio-lucro');
+    const relatorioDinheiro = document.getElementById('relatorio-dinheiro');
+    const relatorioPix = document.getElementById('relatorio-pix');
+    const relatorioDebito = document.getElementById('relatorio-debito');
+    const relatorioCredito = document.getElementById('relatorio-credito');
+    let valorTotal = 0;
+    let valorLucro = 0;
+    let valorDinheiro = 0;
+    let valorPix = 0;
+    let valorDebito = 0;
+    let valorCredito = 0;
+
+    if (!token && id) {
+        window.location.href = '/login';
+    }
+    try {
+        const response = await axios.post('/api/relatorio', {user_id : id}, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        console.log(response.data);
+        if(response.data.length === 0){
+            document.getElementById('itens-relatorio').style.display = 'none';
+            document.getElementById('resposta-relatorio').textContent = 'Não há dados para serem exibidos';
+            return
+        }
+
+        response.data.forEach((item) => {
+            const linha = document.createElement('tr');
+
+            const tdNome = document.createElement('td');
+            tdNome.textContent = item.nome_operador;
+            linha.appendChild(tdNome);
+
+            const tdHoraA = document.createElement('td');
+            tdHoraA.textContent = formatarData(item.hora_inicial);
+            linha.appendChild(tdHoraA);
+
+            const tdHoraF = document.createElement('td');
+            if(item.status === 'aberto'){
+                tdHoraF.textContent = 'Caixa aberto';
+            }else{
+                tdHoraF.textContent = formatarData(item.hora_final);
+            }
+            linha.appendChild(tdHoraF);
+
+            const tdQuebra = document.createElement('td');
+            let quebra = Number(item.dinheiro_final) - Number(item.dinheiro);
+            if(item.status === 'aberto'){
+                tdQuebra.textContent = 'Caixa aberto';
+            }else{
+                if(quebra < 0 ){
+                    tdQuebra.style.color = 'red';
+                }else{
+                    tdQuebra.style.color = 'green';
+                }
+                quebra = formatDinheiroNumero(quebra);
+                tdQuebra.textContent = quebra;
+            }
+            linha. appendChild(tdQuebra);
+
+            const tdDinheiro = document.createElement('td');
+            const dinheiro = formatDinheiroNumero((Number(item.dinheiro) + Number(item.retirada)) - Number(item.dinheiro_inicial));
+            tdDinheiro.textContent = dinheiro;
+            linha. appendChild(tdDinheiro);
+
+            const tdPix = document.createElement('td');
+            tdPix.textContent = formatDinheiroNumero(Number(item.pix));
+            linha.appendChild(tdPix);
+
+            const tdDebito = document.createElement('td');
+            tdDebito.textContent = formatDinheiroNumero(Number(item.debito));
+            linha.appendChild(tdDebito);
+
+            const tdCredito = document.createElement('td');
+            tdCredito.textContent = formatDinheiroNumero(Number(item.credito));
+            linha.appendChild(tdCredito);
+
+            tbodyRelatorio.appendChild(linha);
+
+            valorTotal += ((Number(item.dinheiro) + Number(item.retirada)) - Number(item.dinheiro_inicial)) + Number(item.pix) + Number(item.debito) + Number(item.credito);
+            valorLucro += Number(item.lucro);
+            valorDinheiro += (Number(item.dinheiro) + Number(item.retirada)) - Number(item.dinheiro_inicial);
+            valorPix += Number(item.pix);
+            valorDebito += Number(item.debito);
+            valorCredito += Number(item.credito);
+        })
+        relatorioTotal.textContent = 'Total das vendas: ' + (formatDinheiroNumero(valorTotal));
+        relatorioLucro.textContent = 'Lucro total: ' + (formatDinheiroNumero(valorLucro));
+        relatorioDinheiro.textContent = 'Total de vendas em dinheiro: ' + (formatDinheiroNumero(valorDinheiro));
+        relatorioPix.textContent = 'Total de vendas no pix: ' + (formatDinheiroNumero(valorPix));
+        relatorioDebito.textContent = 'Total de vendas no débito: ' + (formatDinheiroNumero(valorDebito));
+        relatorioCredito.textContent = 'Total de vendas no crédito: ' + (formatDinheiroNumero(valorCredito));
+    } catch (error) {
+        if (error.response && error.response.status === 403) {
+            console.log('Credenciais inválidas. Erro:', error.response.data.error);
+            window.location.href = '/login';
+        }
+        console.error('Erro ao buscar caixas:', error);
+    }
+}
+
+async function zerarEvento(){
+    if (!token && id) {
+        window.location.href = '/login';
+    }
+    const confirm = window.confirm('Atenção!!! Ao clicar em ok você excluirá permanentemente todos os dados do evento.');
+    if(confirm){
+        try{
+            const response = await axios.post('/api/excluir-evento', {user_id : id}, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            if(response.data.message === 'aberto'){
+                alert('Feche todos os caixas para poder limpar os dados do evento');
+            }else{
+                alert(response.data.message);
+                window.location.reload();
+            }
+
+        }catch (error) {
+            if (error.response && error.response.status === 403) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                window.location.href = '/login';
+            }
+            console.error('Erro ao buscar caixas:', error);
+        }
+    }
+}
+
+function formatDinheiroNumero(valor){
+   return new Intl.NumberFormat('pt-BR', { 
+        style: 'currency', 
+        currency: 'BRL' 
+      }).format(valor);
 }
 
 function FecharCaixas() {
@@ -960,7 +1182,7 @@ function FecharCaixas() {
 }
 
 async function escolherCaixa() {
-   let valor = idCaixasAbertos;
+    let valor = idCaixasAbertos;
     console.log('Id caixa:', valor);
     localStorage.setItem('idCaixa', valor);
     idCaixa = valor;
@@ -1091,7 +1313,7 @@ function cadastroBebidas() {
     closeNav2();
 }
 
-function FecharContainers(){
+function FecharContainers() {
     for (var i = 0; i < allContainers.length; i++) {
         allContainers[i].style.display = 'none';
     }
@@ -1228,6 +1450,10 @@ async function submitForm(event) {
             buscaEstoque();
             document.getElementById("form-cadastrob").reset();
         } catch (error) {
+            if (error.response && error.response.status === 403) {
+                console.log('Credenciais inválidas. Erro:', error.response.data.error);
+                window.location.href = '/login';
+            }
             console.error('Erro ao enviar os dados:', error);
             alert(error.message);
         }
